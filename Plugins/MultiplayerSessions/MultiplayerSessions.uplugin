@@ -3,9 +3,9 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "MultiplayerSessions",
-	"Description": "A plugin for handling online multiplayer sessions",
+	"Description": "",
 	"Category": "Other",
-	"CreatedBy": "Stephen Ulibarri",
+	"CreatedBy": "",
 	"CreatedByURL": "",
 	"DocsURL": "",
 	"MarketplaceURL": "",
@@ -30,5 +30,6 @@
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true
 		}
+
 	]
 }
