@@ -30,7 +30,9 @@ private:
 	class USpringArmComponent* CameraBoom;
 	UPROPERTY(VisibleAnywhere, Category = CameraAnywhere)
 	class UCameraComponent* FollowCamera;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))//allowing acccess to a private variable
+	class UWidgetComponent* OverheadWidget;
+
 
 //getters and setters
 public:	
