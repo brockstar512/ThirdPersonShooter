@@ -35,6 +35,6 @@ void UOverheadWidget::SetDisplayText(FString TextToDisplay)
 {
     if(DisplayText)
     {
-        DisplayText->SetText(FText::FromString(TextToDisplay));
+        //DisplayText->SetText(FText::FromString(TextToDisplay));
     }
 }
