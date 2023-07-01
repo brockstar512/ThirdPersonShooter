@@ -15,6 +15,7 @@ public:
 	ABlasterCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,8 +35,16 @@ private:
 	class UWidgetComponent* OverheadWidget;
 
 
-//getters and setters
-public:	
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
+	class AWeapon* OverlappingWeapon;
 
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);//can only have a parameter of type it is replicating...this is to help figure out which widget to hide when we are not with it anymore
+
+//getters and setters
+//when the replicated variable changes the inline function is going to run on the client
+//replication only changes when the variable changes
+public:	
+	void SetOverlappingWeapon(AWeapon* Weapon);
 
 };
