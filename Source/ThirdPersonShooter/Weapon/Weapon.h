@@ -60,6 +60,7 @@ private:
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
 	class UWidgetComponent* PickupWidget;
 public:	
+	FORCEINLINE void SetWeaponState(EWeaponState State){WeaponState = State;}
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void ShowPickupWidget(bool bShowWidget);
