@@ -100,6 +100,11 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	}
 }
 
+bool ABlasterCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
+
 void ABlasterCharacter::MoveForward(float Value)
 {
 	if(Controller != nullptr && Value != 0.f)

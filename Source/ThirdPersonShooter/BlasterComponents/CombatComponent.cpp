@@ -6,6 +6,8 @@
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Net/UnrealNetwork.h"
+
 
 
 // Sets default values for this component's properties
@@ -22,6 +24,13 @@ void UCombatComponent::BeginPlay()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	//replication does not run on the server so we need to hanlde a special case when the server overlaps
+	DOREPLIFETIME(UCombatComponent,EquippedWeapon);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)

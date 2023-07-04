@@ -55,5 +55,5 @@ private:
 //replication only changes when the variable changes
 public:	
 	void SetOverlappingWeapon(AWeapon* Weapon);
-
+	bool IsWeaponEquipped();
 };
