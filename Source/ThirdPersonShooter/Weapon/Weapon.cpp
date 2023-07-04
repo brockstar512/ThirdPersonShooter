@@ -5,6 +5,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
+#include "Net/UnrealNetwork.h"
+
 // Sets default values
 AWeapon::AWeapon()
 {
@@ -64,6 +66,31 @@ void AWeapon::BeginPlay()
 	}
 }
 
+void AWeapon::OnRep_WeaponState()
+{
+	switch(WeaponState)
+	{
+		case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+		// AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	}
+}
+
+void AWeapon::SetWeaponState(EWeaponState State)
+{
+	//this will change the variabke which will fire the replicate function attached to it on the clients....i think
+	WeaponState = State;
+		switch(WeaponState)
+	{
+		case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);		
+		break;
+	}
+
+}
+
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -98,4 +125,10 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 	{
 		PickupWidget->SetVisibility(bShowWidget);
 	}
+}
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AWeapon, WeaponState);
 }

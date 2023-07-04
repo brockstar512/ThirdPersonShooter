@@ -4,6 +4,7 @@
 #include "CombatComponent.h"
 #include "ThirdPersonShooter/Weapon/Weapon.h"
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
+#include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 
 
@@ -40,6 +41,7 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 	}
 
 	EquippedWeapon->SetOwner(Character);
-	EquippedWeapon->ShowPickupWidget(false);
+	// EquippedWeapon->ShowPickupWidget(false);
+	// EquippedWeapon->GetAreaSphere()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 

@@ -129,9 +129,16 @@ void ABlasterCharacter::LookUp(float Value)
 
 void ABlasterCharacter::EquipButtonPressed()
 {
-	if(Combat && HasAuthority())
+	if(Combat)
 	{
-		Combat->EquipWeapon(OverlappingWeapon);
+		if(HasAuthority())
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed();
+		}
 	}
 }
 
@@ -148,5 +155,14 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 		LastWeapon->ShowPickupWidget(false);
 	}
 	
+}
+//we need to add _implementation so the engine knows this is the implementation... the low level stuff is going to be taken
+//are of by the engine
+void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
+{
+		if(Combat)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
 }
 

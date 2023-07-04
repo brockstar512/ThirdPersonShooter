@@ -46,6 +46,10 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
 
+	//reliable are guaranteed to be executed unreliable may or not be executed depending if the data packet was dropped similar to tcp vs UDP
+	UFUNCTION(Server,Reliable)//one off actiosna re good to make reliable
+	void ServerEquipButtonPressed();
+
 //getters and setters
 //when the replicated variable changes the inline function is going to run on the client
 //replication only changes when the variable changes
