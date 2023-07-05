@@ -41,7 +41,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//replication does not run on the server so we need to hanlde a special case when the server overlaps
-	DOREPLIFETIME_CONDITION(ABlasterCharacter,OverlappingWeapon,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 
 void ABlasterCharacter::PostInitializeComponents()
@@ -62,10 +62,6 @@ void ABlasterCharacter::BeginPlay()
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(true);
-	}
 }
 
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -88,15 +84,22 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	//this will only run on thr server
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
-	if(OverlappingWeapon)
+
+	if(GEngine)
+	{
+    	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("you are overlapping weapon"));	
+	}
+	
+	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->ShowPickupWidget(false);
 	}
-
 	OverlappingWeapon = Weapon;
-	if(IsLocallyControlled())
+
+	//this handles the server prompt because on the server it will be locally owned
+	if (IsLocallyControlled())
 	{
-		if(OverlappingWeapon)
+		if (OverlappingWeapon)
 		{
 			OverlappingWeapon->ShowPickupWidget(true);
 		}
@@ -173,9 +176,15 @@ void ABlasterCharacter::CrouchButtonPressed()
 
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
+
 	//when the variable changes to null as we are leaving this condition will fail
 	if(OverlappingWeapon)
 	{
+		// if(GEngine)
+		// {
+    	// 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("show overlap message"));	
+		// }
+
 		OverlappingWeapon->ShowPickupWidget(true);
 	}
 	//but we will have a cached reference to what the last weapon was and we can difrectly call that weapon to hide the widget
