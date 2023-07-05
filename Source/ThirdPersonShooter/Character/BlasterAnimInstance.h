@@ -29,5 +29,7 @@ class THIRDPERSONSHOOTER_API UBlasterAnimInstance : public UAnimInstance
 		bool bIsAccelerating;
 		UPROPERTY(BlueprintReadOnly, Category= Movement, meta = (AllowPrivateAccess = "true"))
 		bool bWeaponEquipped;
+		UPROPERTY(BlueprintReadOnly, Category= Movement, meta = (AllowPrivateAccess = "true"))
+		bool bIsCrouched;
 
 };
