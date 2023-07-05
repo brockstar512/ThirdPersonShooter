@@ -21,6 +21,19 @@ void UCombatComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+void UCombatComponent::SetAiming(bool bIsAiming)
+{
+	//we are going to leave this here so we have to wait for the server to change this variable and have a lag in the animation
+	bAiming = bIsAiming;
+	ServerSetAiming(bIsAiming);
+
+}
+
+void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
+{
+		bAiming = bIsAiming;
+}
+
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -30,7 +43,10 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//replication does not run on the server so we need to hanlde a special case when the server overlaps
+	//we are registering replicated variables here
 	DOREPLIFETIME(UCombatComponent,EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent,bAiming);
+
 }
 
 void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)

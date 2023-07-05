@@ -78,6 +78,8 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
 
 }
 
@@ -85,11 +87,9 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 
-	if(GEngine)
-	{
-    	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("you are overlapping weapon"));	
-	}
-	
+
+	//i think we are forcing weapon off on the server then changes the overlapping variable so it fires on local client
+	//then we are handling when the server is able to see the weapon...
 	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->ShowPickupWidget(false);
@@ -109,6 +109,12 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 bool ABlasterCharacter::IsWeaponEquipped()
 {
 	return (Combat && Combat->EquippedWeapon);
+}
+
+bool ABlasterCharacter::IsAiming()
+{
+	//is aiming is just referencing the aiming bool in our combat component
+	return (Combat && Combat->bAiming);
 }
 
 void ABlasterCharacter::MoveForward(float Value)
@@ -174,17 +180,34 @@ void ABlasterCharacter::CrouchButtonPressed()
 	}
 }
 
+void ABlasterCharacter::AimButtonPressed()
+{
+	//we are setting the combat component aiming bool in our blaster script
+	if(Combat)
+	{
+		Combat->SetAiming(true);
+	}
+}
+
+void ABlasterCharacter::AimButtonReleased()
+{
+	if(Combat)
+	{
+		Combat->SetAiming(false);
+	}
+}
+
+//this runs on clients
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
+	if(GEngine)
+	{
+    	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("on repo overlap fired because OverlappingWeapon changed"));	
+	}
 
 	//when the variable changes to null as we are leaving this condition will fail
 	if(OverlappingWeapon)
 	{
-		// if(GEngine)
-		// {
-    	// 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("show overlap message"));	
-		// }
-
 		OverlappingWeapon->ShowPickupWidget(true);
 	}
 	//but we will have a cached reference to what the last weapon was and we can difrectly call that weapon to hide the widget
