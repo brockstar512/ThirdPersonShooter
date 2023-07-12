@@ -10,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "ThirdPersonShooter/BlasterComponents/CombatComponent.h"
 #include "ThirdPersonShooter/Weapon/Weapon.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -66,6 +67,7 @@ void ABlasterCharacter::BeginPlay()
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	AimOffset(DeltaTime);
 }
 
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -199,6 +201,32 @@ void ABlasterCharacter::AimButtonReleased()
 	{
 		Combat->SetAiming(false);
 	}
+}
+
+void ABlasterCharacter::AimOffset(float DeltaTime)
+{
+	if(Combat && Combat->EquippedWeapon == nullptr)return;
+	FVector Velocity = GetVelocity();
+    Velocity.Z = 0.f;
+    float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if(Speed == 0.f && !bIsInAir)//stadning still and not jumping
+	{
+		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw,0.f);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation,StartAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+		bUseControllerRotationYaw = false;
+	}
+	if(Speed > 0.f || bIsInAir)//running or jumping
+	{
+		StartAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw,0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = true;
+
+	}
+
+	AO_Pitch = GetBaseAimRotation().Pitch;
 }
 
 //this runs on clients
