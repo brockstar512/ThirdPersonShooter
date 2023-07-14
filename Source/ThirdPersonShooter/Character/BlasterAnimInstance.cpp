@@ -5,6 +5,8 @@
 #include "BlasterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ThirdPersonShooter/Weapon/Weapon.h"
+
 void UBlasterAnimInstance::NativeInitializeAnimation()
 {
     Super::NativeInitializeAnimation();
@@ -32,9 +34,10 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
     bIsAccelerating = BlasterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
     bWeaponEquipped = BlasterCharacter->IsWeaponEquipped();
+    EquippedWeapon =  BlasterCharacter->GetEqippedWeapon();
     bIsCrouched = BlasterCharacter->bIsCrouched;
     bAiming= BlasterCharacter->IsAiming();//I believe we are binding the bAiming bool for our aimation states to the blast character is aiming
-
+    TurningInPlace = BlasterCharacter->GetTurningInPlace();
     //offset yah for straffing
 	// Offset Yaw for Strafing
 	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation();
@@ -50,4 +53,16 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
     AO_Yaw = BlasterCharacter->GetAO_Yaw();
     AO_Pitch = BlasterCharacter->GetAO_Pitch();
+
+    if(bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && BlasterCharacter->GetMesh())
+    {
+        LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"),ERelativeTransformSpace::RTS_World);
+        FVector OutPosition;
+        FRotator OutRotation;
+        BlasterCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"),LeftHandTransform.GetLocation(),FRotator::ZeroRotator,OutPosition,OutRotation);
+        LeftHandTransform.SetLocation(OutPosition);
+        LeftHandTransform.SetRotation(FQuat(OutRotation));
+
+    }
+ 
 }
