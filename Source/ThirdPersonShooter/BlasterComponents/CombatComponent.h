@@ -40,6 +40,7 @@ private:
 	bool bAiming;
 
 	float BaseWalkSpeed;
+	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
 
 

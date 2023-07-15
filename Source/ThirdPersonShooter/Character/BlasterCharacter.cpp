@@ -40,6 +40,7 @@ ABlasterCharacter::ABlasterCharacter()
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera,ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera,ECollisionResponse::ECR_Ignore);
+	GetCharacterMovement()->RotationRate = FRotator(0.f,0.f,850.f);
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
@@ -69,6 +70,18 @@ void ABlasterCharacter::BeginPlay()
 	
 }
 
+void ABlasterCharacter::Jump()
+{
+	if(bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Super::Jump();
+	}
+}
+
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -80,7 +93,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
 
 	//bind this macro from the input project settings mapping, with this function
 	PlayerInputComponent->BindAxis("MoveForward",this,&ABlasterCharacter::MoveForward);
@@ -97,6 +110,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ABlasterCharacter::TurnInPlace(float DeltaTime)
 {
+
 	if (AO_Yaw > 90.f)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Right;
@@ -283,10 +297,10 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 //this runs on clients
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
-	if(GEngine)
-	{
-    	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("on repo overlap fired because OverlappingWeapon changed"));	
-	}
+	// if(GEngine)
+	// {
+    // 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("on repo overlap fired because OverlappingWeapon changed"));	
+	// }
 
 	//when the variable changes to null as we are leaving this condition will fail
 	if(OverlappingWeapon)

@@ -21,7 +21,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
+	virtual void Jump() override;
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void Turn(float Value);
@@ -73,4 +73,7 @@ public:
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
 	AWeapon* GetEqippedWeapon();
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}
+	//UPROPERTY(VisibleAnywhere, Category = CombatComponent)this will add a vriable string  called hello to the category on myblastercharacter
+	//FString hello = "Hello";
+
 };
