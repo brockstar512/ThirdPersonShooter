@@ -20,10 +20,11 @@ public:
 	friend class ABlasterCharacter;
 	void EquipWeapon(class AWeapon* WeaponToEquip);
 
-protected:
+protected://	friend class ABlasterCharacter; now blaster character has access to all of the combat compoannts protected and priate stuff
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	void SetAiming(bool bIsAiming);
+	void FireButtonPressed(bool bIsPressed);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
@@ -43,7 +44,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
 
-
+	bool bFireButtonPressed;
 public:	
 
 		

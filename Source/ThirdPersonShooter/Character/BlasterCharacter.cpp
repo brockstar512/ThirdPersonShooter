@@ -11,6 +11,7 @@
 #include "ThirdPersonShooter/BlasterComponents/CombatComponent.h"
 #include "ThirdPersonShooter/Weapon/Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "BlasterAnimInstance.h"
 
 
 // Sets default values
@@ -64,6 +65,22 @@ void ABlasterCharacter::PostInitializeComponents()
 	}
 }
 
+void ABlasterCharacter::PlayFireMontage(bool bAiming)
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && FireWeaponMontage)
+	{
+		AnimInstance->Montage_Play(FireWeaponMontage);
+		FName SectionName;
+		SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+
+		// UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -105,6 +122,9 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABlasterCharacter::FireButtonReleased);
+
 
 }
 
@@ -134,7 +154,6 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 		}
 	}
 }
-
 
 //this will only run on thr server
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
@@ -241,6 +260,7 @@ void ABlasterCharacter::CrouchButtonPressed()
 
 void ABlasterCharacter::AimButtonPressed()
 {
+	if(!IsWeaponEquipped()) return;
 	//we are setting the combat component aiming bool in our blaster script
 	if(Combat)
 	{
@@ -291,6 +311,30 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		FVector2D InRange(270.f, 360.f);
 		FVector2D OutRange(-90.f, 0.f);
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
+}
+
+void ABlasterCharacter::FireButtonReleased()
+{
+	// if(GEngine)
+	// {
+    // 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("fire button released"));	
+	// }
+	if(Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
+}
+
+void ABlasterCharacter::FireButtonPressed()
+{	
+	// if(GEngine)
+	// {
+    // 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("fire button pressed"));	
+	// }
+	if(Combat)
+	{
+		Combat->FireButtonPressed(true);
 	}
 }
 

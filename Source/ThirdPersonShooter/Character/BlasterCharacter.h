@@ -18,7 +18,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
-
+	void PlayFireMontage(bool bAiming);
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
@@ -31,6 +31,8 @@ protected:
 	void AimButtonPressed();
 	void AimButtonReleased();
 	void AimOffset(float DeltaTime);
+	void FireButtonPressed();
+	void FireButtonReleased();
 
 
 
@@ -41,27 +43,23 @@ private:
 	class UCameraComponent* FollowCamera;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))//allowing acccess to a private variable
 	class UWidgetComponent* OverheadWidget;
-
-
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	class AWeapon* OverlappingWeapon;
-
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);//can only have a parameter of type it is replicating...this is to help figure out which widget to hide when we are not with it anymore
-	
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
-
 	//reliable are guaranteed to be executed unreliable may or not be executed depending if the data packet was dropped similar to tcp vs UDP
 	UFUNCTION(Server,Reliable)//one off actiosna re good to make reliable
 	void ServerEquipButtonPressed();
-
-		float AO_Yaw;
-		float InterpAO_Yaw;
-		float AO_Pitch;	
-		FRotator StartAimRotation;
-		ETurningInPlace TurningInPlace;
-		void TurnInPlace(float DeltaTime);
+	float AO_Yaw;
+	float InterpAO_Yaw;
+	float AO_Pitch;	
+	FRotator StartAimRotation;
+	ETurningInPlace TurningInPlace;
+	void TurnInPlace(float DeltaTime);
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* FireWeaponMontage;
 //getters and setters
 //when the replicated variable changes the inline function is going to run on the client
 //replication only changes when the variable changes
