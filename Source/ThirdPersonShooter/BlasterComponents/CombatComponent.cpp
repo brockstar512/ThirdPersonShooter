@@ -27,6 +27,15 @@ void UCombatComponent::BeginPlay()
 		Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	}
 }
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	//replication does not run on the server so we need to hanlde a special case when the server overlaps
+	//we are registering replicated variables here
+	DOREPLIFETIME(UCombatComponent,EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent,bAiming);
+
+}
 
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
@@ -43,14 +52,12 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
-	if(EquippedWeapon == nullptr) return;
-
-	if (Character && bFireButtonPressed)
+	if (bFireButtonPressed)
 	{
-		Character->PlayFireMontage(bAiming);
-		EquippedWeapon->Fire();
+		ServerFire();
 	}
 }
+
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 {
@@ -66,15 +73,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	//replication does not run on the server so we need to hanlde a special case when the server overlaps
-	//we are registering replicated variables here
-	DOREPLIFETIME(UCombatComponent,EquippedWeapon);
-	DOREPLIFETIME(UCombatComponent,bAiming);
 
-}
 
 void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 {
@@ -107,4 +106,22 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
 	}
+}
+
+void UCombatComponent::ServerFire_Implementation()
+{
+
+	MulticastFire();
+}
+
+void UCombatComponent::MulticastFire_Implementation()
+{
+	if(EquippedWeapon == nullptr) return;
+
+	if (Character)
+	{
+		Character->PlayFireMontage(bAiming);
+		EquippedWeapon->Fire();
+	}
+
 }

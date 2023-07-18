@@ -31,6 +31,12 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void ServerFire();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastFire();
 private:
 	class ABlasterCharacter* Character;
 
