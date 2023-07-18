@@ -101,8 +101,11 @@ void ABlasterCharacter::Jump()
 
 void ABlasterCharacter::Tick(float DeltaTime)
 {
+
 	Super::Tick(DeltaTime);
 	AimOffset(DeltaTime);
+	//UE_LOG(LogTemp, Warning, TEXT("tick is running!"));
+
 
 }
 

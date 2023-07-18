@@ -72,10 +72,10 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	UE_LOG(LogTemp, Warning, TEXT("tick is running!"));
 
 	FHitResult HitResult;
 	TraceUnderCrosshairs(HitResult);
+	UE_LOG(LogTemp, Warning, TEXT("tick is running!"));
 }
 
 
