@@ -64,7 +64,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
         LeftHandTransform.SetRotation(FQuat(OutRotation));
 
     }
-    UE_LOG(LogTemp, Warning, TEXT("yaw: %f "),YawOffset);
+    // UE_LOG(LogTemp, Warning, TEXT("yaw: %f "),YawOffset);
 
 }
 

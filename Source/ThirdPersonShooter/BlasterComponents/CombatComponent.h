@@ -7,6 +7,8 @@
 #include "CombatComponent.generated.h"
 
 
+#define TRACE_LENGTH 80000.f;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class THIRDPERSONSHOOTER_API UCombatComponent : public UActorComponent
 {
@@ -34,9 +36,12 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 
 	UFUNCTION(Server, Reliable)
 	void ServerFire();
-	
+
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire();
+
+	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
+
 private:
 	class ABlasterCharacter* Character;
 

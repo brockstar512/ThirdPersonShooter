@@ -134,12 +134,12 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 	if (AO_Yaw > 90.f)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Right;
-				UE_LOG(LogTemp, Warning, TEXT("Turning right"));
+				// UE_LOG(LogTemp, Warning, TEXT("Turning right"));
 	}
 	else if (AO_Yaw < -90.f)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Left;
-		UE_LOG(LogTemp, Warning, TEXT("Turning left"));
+		// UE_LOG(LogTemp, Warning, TEXT("Turning left"));
 	}
 	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning)
 	{
