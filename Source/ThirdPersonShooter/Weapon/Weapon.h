@@ -24,7 +24,7 @@ class THIRDPERSONSHOOTER_API AWeapon : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AWeapon();
-
+	void Fire();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -62,6 +62,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
 	class UWidgetComponent* PickupWidget;
+	
+	UPROPERTY(EditAnywhere, Category="Weapon Properties")
+	class UAnimationAsset* FireAnimation;
 public:	
 	void SetWeaponState(EWeaponState State);
 	// Called every frame

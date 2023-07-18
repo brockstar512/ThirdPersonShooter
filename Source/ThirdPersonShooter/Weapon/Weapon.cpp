@@ -6,6 +6,8 @@
 #include "Components/WidgetComponent.h"
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "Animation/AnimationAsset.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -43,6 +45,14 @@ AWeapon::AWeapon()
 	PickupWidget=CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));//we will selec whick widhet class in the bp
 	PickupWidget-> SetupAttachment(RootComponent);
 
+}
+
+void AWeapon::Fire()
+{
+	if(FireAnimation)
+	{
+		WeaponMesh->PlayAnimation(FireAnimation,false);
+	}
 }
 
 void AWeapon::BeginPlay()
