@@ -6,8 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
-
-#define TRACE_LENGTH 80000.f;
+#define TRACE_LENGTH 80000.f
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class THIRDPERSONSHOOTER_API UCombatComponent : public UActorComponent
@@ -17,48 +16,14 @@ class THIRDPERSONSHOOTER_API UCombatComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UCombatComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	friend class ABlasterCharacter;
-	void EquipWeapon(class AWeapon* WeaponToEquip);
 
-protected://	friend class ABlasterCharacter; now blaster character has access to all of the combat compoannts protected and priate stuff
+protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	void SetAiming(bool bIsAiming);
-	void FireButtonPressed(bool bIsPressed);
 
-	UFUNCTION(Server, Reliable)
-	void ServerSetAiming(bool bIsAiming);
-
-	UFUNCTION()
-	void OnRep_EquippedWeapon();
-
-	UFUNCTION(Server, Reliable)
-	void ServerFire();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire();
-
-	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
-
-private:
-	class ABlasterCharacter* Character;
-
-	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
-	AWeapon* EquippedWeapon;
-	
-	UPROPERTY(Replicated)
-	bool bAiming;
-
-	float BaseWalkSpeed;
-	UPROPERTY(EditAnywhere)
-	float AimWalkSpeed;
-
-	bool bFireButtonPressed;
-
-	FVector HitTarget;
 public:	
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		
 };
