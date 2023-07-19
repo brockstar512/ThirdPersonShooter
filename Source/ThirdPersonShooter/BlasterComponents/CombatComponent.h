@@ -32,9 +32,9 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 	UFUNCTION(Server, Reliable)
-	void ServerFire();
+	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire();
+	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
 private:
@@ -46,7 +46,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
 	bool bFireButtonPressed;
-	FVector HitTarget;
 
 public:	
 	// Called every frame

@@ -87,7 +87,10 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	bFireButtonPressed = bPressed;
 	if (bFireButtonPressed)
 	{
-		ServerFire();
+		FHitResult HitResult;
+		TraceUnderCrosshairs(HitResult);
+		//telling the server i clicked fire and which point i was clicking at
+		ServerFire(HitResult.ImpactPoint);
 	}
 }
 
@@ -110,20 +113,21 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation()
+void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-
-	MulticastFire();
+	//this actore should fire on the server and the clients hence the multitcast... no matter you role fire that characters gun
+	MulticastFire(TraceHitTarget);
 }
 
-void UCombatComponent::MulticastFire_Implementation()
+//this is the server calling fire on all clients and server
+void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if(EquippedWeapon == nullptr) return;
-
+	//checking if this role has a gun and character then fireing
 	if (Character)
 	{
 		Character->PlayFireMontage(bAiming);
-		EquippedWeapon->Fire(HitTarget);
+		EquippedWeapon->Fire(TraceHitTarget);
 	}
 
 }
@@ -149,7 +153,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 
 	if (bScreenToWorld)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("sending out ray!"));
+		//UE_LOG(LogTemp, Warning, TEXT("sending out ray!"));
 
 		FVector Start = CrosshairWorldPosition;
 
@@ -161,28 +165,16 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 			End,
 			ECollisionChannel::ECC_Visibility
 		);
-		if (!TraceHitResult.bBlockingHit)
-		{
-			TraceHitResult.ImpactPoint = End;
-			HitTarget = End;
 
-			UE_LOG(LogTemp, Warning, TEXT("Something is blocking!"));
 
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Should be drawing sphere!"));
-
-			HitTarget = TraceHitResult.ImpactPoint;
-
-			DrawDebugSphere(
-				GetWorld(),
-				TraceHitResult.ImpactPoint,
-				12.f,
-				12,
-				FColor::Red
-			);
-		}
+			// DrawDebugSphere(
+			// 	GetWorld(),
+			// 	TraceHitResult.ImpactPoint,
+			// 	12.f,
+			// 	12,
+			// 	FColor::Red
+			// );
+		
 	}
 
 }
@@ -192,9 +184,9 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-UE_LOG(LogTemp, Warning, TEXT("Hello"));
+	//UE_LOG(LogTemp, Warning, TEXT("Hello"));
 	// ...
-	FHitResult HitResult;
-	TraceUnderCrosshairs(HitResult);
+	// FHitResult HitResult;
+	// TraceUnderCrosshairs(HitResult);
 }
 
