@@ -34,7 +34,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
     bIsAccelerating = BlasterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
     bWeaponEquipped = BlasterCharacter->IsWeaponEquipped();
-    //EquippedWeapon =  BlasterCharacter->GetEqippedWeapon();
+    EquippedWeapon =  BlasterCharacter->GetEqippedWeapon();
     bIsCrouched = BlasterCharacter->bIsCrouched;
     bAiming= BlasterCharacter->IsAiming();//I believe we are binding the bAiming bool for our aimation states to the blast character is aiming
     TurningInPlace = BlasterCharacter->GetTurningInPlace();

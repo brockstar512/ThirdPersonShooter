@@ -59,15 +59,15 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 void ABlasterCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	// if(Combat)
-	// {
-		//Combat->Character = this;//passing this ccharacter off to the combat class
-	//}
+	if(Combat)
+	{
+		Combat->Character = this;//passing this ccharacter off to the combat class
+	}
 }
 
 void ABlasterCharacter::PlayFireMontage(bool bAiming)
 {
-	//if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && FireWeaponMontage)
@@ -183,22 +183,20 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 
 bool ABlasterCharacter::IsWeaponEquipped()
 {
-	//return (Combat && Combat->EquippedWeapon);
-	return true;
+	return (Combat && Combat->EquippedWeapon);
 }
 
 bool ABlasterCharacter::IsAiming()
 {
 	//is aiming is just referencing the aiming bool in our combat component
-	//return (Combat && Combat->bAiming);
-	return true;
+	return (Combat && Combat->bAiming);
 }
 
-// AWeapon * ABlasterCharacter::GetEqippedWeapon()
-// {
-// 	if(Combat == nullptr) return nullptr;
-// 	return Combat->EquippedWeapon;
-// }
+AWeapon * ABlasterCharacter::GetEqippedWeapon()
+{
+	if(Combat == nullptr) return nullptr;
+	return Combat->EquippedWeapon;
+}
 
 void ABlasterCharacter::MoveForward(float Value)
 {
@@ -231,14 +229,14 @@ void ABlasterCharacter::EquipButtonPressed()
 {
 	if(Combat)
 	{
-		// if(HasAuthority())
-		// {
-		// 	Combat->EquipWeapon(OverlappingWeapon);
-		// }
-		// else
-		// {
-		// 	ServerEquipButtonPressed();
-		// }
+		if(HasAuthority())
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed();
+		}
 	}
 }
 
@@ -267,23 +265,23 @@ void ABlasterCharacter::AimButtonPressed()
 {
 	if(!IsWeaponEquipped()) return;
 	//we are setting the combat component aiming bool in our blaster script
-	// if(Combat)
-	// {
-	// 	Combat->SetAiming(true);
-	// }
+	if(Combat)
+	{
+		Combat->SetAiming(true);
+	}
 }
 
 void ABlasterCharacter::AimButtonReleased()
 {
-	// if(Combat)
-	// {
-	// 	Combat->SetAiming(false);
-	// }
+	if(Combat)
+	{
+		Combat->SetAiming(false);
+	}
 }
 
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {
-	//if (Combat && Combat->EquippedWeapon == nullptr) return;
+	if (Combat && Combat->EquippedWeapon == nullptr) return;
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	float Speed = Velocity.Size();
@@ -327,7 +325,7 @@ void ABlasterCharacter::FireButtonReleased()
 	// }
 	if(Combat)
 	{
-		//Combat->FireButtonPressed(false);
+		Combat->FireButtonPressed(false);
 	}
 }
 
@@ -339,7 +337,7 @@ void ABlasterCharacter::FireButtonPressed()
 	// }
 	if(Combat)
 	{
-		//Combat->FireButtonPressed(true);
+		Combat->FireButtonPressed(true);
 	}
 }
 
@@ -369,7 +367,7 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
 		if(Combat)
 	{
-		//Combat->EquipWeapon(OverlappingWeapon);
+		Combat->EquipWeapon(OverlappingWeapon);
 	}
 }
 
