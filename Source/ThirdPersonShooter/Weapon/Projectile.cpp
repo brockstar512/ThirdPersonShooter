@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
 // Sets default values
 AProjectile::AProjectile()
 {
@@ -25,6 +26,12 @@ AProjectile::AProjectile()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 }
 
+void AProjectile::Destroyed()
+{
+	Super::Destroyed();
+	//because when you destroy a replicated actor every machine where that actor is is also going to be destroyed this will run for everyone
+}
+
 // Called when the game starts or when spawned
 void AProjectile::BeginPlay()
 {
@@ -40,6 +47,34 @@ void AProjectile::BeginPlay()
 			EAttachLocation::KeepWorldPosition
 		);
 	}
+
+	if(HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("binding on hit function"));
+
+		//we are only applying hit events to server
+		CollisionBox->OnComponentHit.AddDynamic(this,&AProjectile::OnHit);
+		
+	}
+}
+
+void AProjectile::OnHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
+{
+	UE_LOG(LogTemp, Warning, TEXT("On Hit"));
+	if(ImpactParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			ImpactParticles,
+			GetActorTransform()
+		);
+	}
+	if(ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound,GetActorLocation());
+	}
+
+	Destroy();
 }
 
 // Called every frame

@@ -153,7 +153,7 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 		{
 			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 			StartAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-			UE_LOG(LogTemp, Warning, TEXT("Not Turning"));
+			// UE_LOG(LogTemp, Warning, TEXT("Not Turning"));
 		}
 	}
 }
