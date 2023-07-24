@@ -16,7 +16,6 @@ class THIRDPERSONSHOOTER_API UCombatComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UCombatComponent();
-	class ABlasterCharacter* Character;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	friend class ABlasterCharacter;
 	void EquipWeapon(class AWeapon* WeaponToEquip);
@@ -36,8 +35,11 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
-
+	void SetHUDCrosshairs(float DeltaTime);
 private:
+	class ABlasterCharacter* Character;
+	class ABlasterPlayerController* Controller;
+	class ABlasterHUD* HUD;
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
 	UPROPERTY(Replicated)

@@ -10,6 +10,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
+#include "ThirdPersonShooter/HUD/BlasterHUD.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -36,6 +38,18 @@ void UCombatComponent::BeginPlay()
 	}
 	
 }
+
+// Called every frame
+void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	//UE_LOG(LogTemp, Warning, TEXT("Hello"));
+	// ...
+	// FHitResult HitResult;
+	// TraceUnderCrosshairs(HitResult);
+	SetHUDCrosshairs(DeltaTime);
+}
+
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -180,13 +194,57 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 }
 
 
-// Called every frame
-void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	//UE_LOG(LogTemp, Warning, TEXT("Hello"));
-	// ...
-	// FHitResult HitResult;
-	// TraceUnderCrosshairs(HitResult);
+	// UE_LOG(LogTemp, Log, TEXT("Bool 1 value is: %s"), Character->Controller == nullptr ? "true" : "false" );
+	// UE_LOG(LogTemp, Log, TEXT("Bool 2 value is: %s"), Controller == nullptr ? "true" : "false" );
+	// if (GEngine)
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("Bool: %s"), Character->Controller == nullptr ? TEXT("true") : TEXT("false")));
+	// }
+	if (Character == nullptr || Character->Controller == nullptr) return;
+	UE_LOG(LogTemp, Log, TEXT("casting controller"));
+	// UE_LOG(LogTemp, Warning, TEXT("Hello"));
+	//assign this vairable controller to the controller in character
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+
+	if (Controller)
+	{
+		HUD = HUD == nullptr ? Cast<ABlasterHUD>(Controller->GetHUD()) : HUD;
+		UE_LOG(LogTemp, Log, TEXT("controller exists"));
+
+		if (HUD)
+		{
+			FHUDPackage HUDPackage;
+			if (EquippedWeapon)
+			{
+						UE_LOG(LogTemp, Log, TEXT("hud exists"));
+
+				HUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
+				HUDPackage.CrosshairsLeft = EquippedWeapon->CrosshairsLeft;
+				HUDPackage.CrosshairsRight = EquippedWeapon->CrosshairsRight;
+				HUDPackage.CrosshairsBottom = EquippedWeapon->CrosshairsBottom;
+				HUDPackage.CrosshairsTop = EquippedWeapon->CrosshairsTop;
+				UE_LOG(LogTemp, Warning, TEXT("Got textures!"));
+
+			}
+			else
+			{
+				HUDPackage.CrosshairsCenter = nullptr;
+				HUDPackage.CrosshairsLeft = nullptr;
+				HUDPackage.CrosshairsRight = nullptr;
+				HUDPackage.CrosshairsBottom = nullptr;
+				HUDPackage.CrosshairsTop = nullptr;
+			}
+			
+
+			HUD->SetHUDPackage(HUDPackage);
+		}
+	}else
+	{
+	UE_LOG(LogTemp, Log, TEXT("no controller"));
+
+	}
 }
+
 
