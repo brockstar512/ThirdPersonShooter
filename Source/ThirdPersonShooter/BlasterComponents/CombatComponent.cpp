@@ -203,29 +203,29 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 	// 	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("Bool: %s"), Character->Controller == nullptr ? TEXT("true") : TEXT("false")));
 	// }
 	if (Character == nullptr || Character->Controller == nullptr) return;
-	UE_LOG(LogTemp, Log, TEXT("casting controller"));
+	// UE_LOG(LogTemp, Log, TEXT("casting controller"));
 	// UE_LOG(LogTemp, Warning, TEXT("Hello"));
-	//assign this vairable controller to the controller in character
+	//assign this vairable controller to the controller in character... the character inhereits a type of player controller we want to make sure we cast that as the bp custom controller we made
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
 
 	if (Controller)
 	{
 		HUD = HUD == nullptr ? Cast<ABlasterHUD>(Controller->GetHUD()) : HUD;
-		UE_LOG(LogTemp, Log, TEXT("controller exists"));
+		// UE_LOG(LogTemp, Log, TEXT("controller exists"));
 
 		if (HUD)
 		{
 			FHUDPackage HUDPackage;
 			if (EquippedWeapon)
 			{
-						UE_LOG(LogTemp, Log, TEXT("hud exists"));
+						// UE_LOG(LogTemp, Log, TEXT("hud exists"));
 
 				HUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
 				HUDPackage.CrosshairsLeft = EquippedWeapon->CrosshairsLeft;
 				HUDPackage.CrosshairsRight = EquippedWeapon->CrosshairsRight;
 				HUDPackage.CrosshairsBottom = EquippedWeapon->CrosshairsBottom;
 				HUDPackage.CrosshairsTop = EquippedWeapon->CrosshairsTop;
-				UE_LOG(LogTemp, Warning, TEXT("Got textures!"));
+				// UE_LOG(LogTemp, Warning, TEXT("Got textures!"));
 
 			}
 			else
@@ -236,14 +236,31 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 				HUDPackage.CrosshairsBottom = nullptr;
 				HUDPackage.CrosshairsTop = nullptr;
 			}
-			
+			//calculate cross hair spread
+
+			// [0, 600] -> [0, 1]
+			FVector2D WalkSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);
+			FVector2D VelocityMultiplierRange(0.f, 1.f);
+			FVector Velocity = Character->GetVelocity();
+			Velocity.Z = 0.f;
+
+			CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
+
+			if (Character->GetCharacterMovement()->IsFalling())
+			{
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
+			}
+			else
+			{
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
+			}
+
+			HUDPackage.CrosshairSpread = CrosshairVelocityFactor + CrosshairInAirFactor;
+
+			// UE_LOG(LogTemp, Log, TEXT("controller exists %f"),HUDPackage.CrosshairSpread);
 
 			HUD->SetHUDPackage(HUDPackage);
 		}
-	}else
-	{
-	UE_LOG(LogTemp, Log, TEXT("no controller"));
-
 	}
 }
 
