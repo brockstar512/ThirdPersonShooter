@@ -260,6 +260,13 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			// UE_LOG(LogTemp, Log, TEXT("controller exists %f"),HUDPackage.CrosshairSpread);
 
 			HUD->SetHUDPackage(HUDPackage);
+			
+			if (Character && Character->IsLocallyControlled())
+			{
+				FHitResult HitResult;
+				TraceUnderCrosshairs(HitResult);
+				HitTarget = HitResult.ImpactPoint;
+			}
 		}
 	}
 }

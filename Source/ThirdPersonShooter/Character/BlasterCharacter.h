@@ -73,5 +73,6 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}
 	//UPROPERTY(VisibleAnywhere, Category = CombatComponent)this will add a vriable string  called hello to the category on myblastercharacter
 	//FString hello = "Hello";
+	FVector GetHitTarget() const;
 
 };

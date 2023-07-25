@@ -198,6 +198,12 @@ AWeapon * ABlasterCharacter::GetEqippedWeapon()
 	return Combat->EquippedWeapon;
 }
 
+FVector ABlasterCharacter::GetHitTarget() const
+{
+	if(Combat == nullptr) return FVector();
+	return Combat->HitTarget;
+}
+
 void ABlasterCharacter::MoveForward(float Value)
 {
 	if(Controller != nullptr && Value != 0.f)
