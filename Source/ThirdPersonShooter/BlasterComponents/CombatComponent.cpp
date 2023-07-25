@@ -141,6 +141,11 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 		TraceUnderCrosshairs(HitResult);
 		//telling the server i clicked fire and which point i was clicking at
 		ServerFire(HitResult.ImpactPoint);
+
+		if (EquippedWeapon)
+		{
+			CrosshairShootingFactor = .75f;
+		}
 	}
 }
 
@@ -189,7 +194,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 	{
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("got to ray function!"));
 
 	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 	FVector CrosshairWorldPosition;
@@ -242,7 +246,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 	// 	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("Bool: %s"), Character->Controller == nullptr ? TEXT("true") : TEXT("false")));
 	// }
 	if (Character == nullptr || Character->Controller == nullptr) return;
-	UE_LOG(LogTemp, Log, TEXT("casting controller"));
+	UE_LOG(LogTemp, Log, TEXT("Top of hud"));
 	// UE_LOG(LogTemp, Warning, TEXT("Hello"));
 	//assign this vairable controller to the controller in character
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
@@ -250,22 +254,22 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 	if (Controller)
 	{
 		HUD = HUD == nullptr ? Cast<ABlasterHUD>(Controller->GetHUD()) : HUD;
-		UE_LOG(LogTemp, Log, TEXT("controller exists"));
+		// UE_LOG(LogTemp, Log, TEXT("controller exists"));
 
 		if (HUD)
 		{
+			UE_LOG(LogTemp, Log, TEXT("Got HUD"));
+
 			FHUDPackage HUDPackage;
 			if (EquippedWeapon)
 			{
-						UE_LOG(LogTemp, Log, TEXT("hud exists"));
+				UE_LOG(LogTemp, Log, TEXT("Got crosshairs"));
 
 				HUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
 				HUDPackage.CrosshairsLeft = EquippedWeapon->CrosshairsLeft;
 				HUDPackage.CrosshairsRight = EquippedWeapon->CrosshairsRight;
 				HUDPackage.CrosshairsBottom = EquippedWeapon->CrosshairsBottom;
 				HUDPackage.CrosshairsTop = EquippedWeapon->CrosshairsTop;
-				UE_LOG(LogTemp, Warning, TEXT("Got textures!"));
-
 			}
 			else
 			{
@@ -275,21 +279,53 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 				HUDPackage.CrosshairsBottom = nullptr;
 				HUDPackage.CrosshairsTop = nullptr;
 			}
-			
+			// Calculate crosshair spread
+
+			// [0, 600] -> [0, 1]
+			FVector2D WalkSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);
+			FVector2D VelocityMultiplierRange(0.f, 1.f);
+			FVector Velocity = Character->GetVelocity();
+			Velocity.Z = 0.f;
+
+			CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
+
+			if (Character->GetCharacterMovement()->IsFalling())
+			{
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
+			}
+			else
+			{
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
+			}
+
+			if (bAiming)
+			{
+						UE_LOG(LogTemp, Log, TEXT("Aiming crosshairs"));
+
+				CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.58f, DeltaTime, 30.f);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("not aiming"));
+				CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.f, DeltaTime, 30.f);
+			}
+
+			CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.f, DeltaTime, 40.f);
+
+			HUDPackage.CrosshairSpread = 
+				0.5f + 
+				CrosshairVelocityFactor + 
+				CrosshairInAirFactor -
+				CrosshairAimFactor +
+				CrosshairShootingFactor;
 
 			HUD->SetHUDPackage(HUDPackage);
-			
-			if (Character && Character->IsLocallyControlled())
-			{
-				FHitResult HitResult;
-				TraceUnderCrosshairs(HitResult);
-				HitTarget = HitResult.ImpactPoint;
-			}
 		}
-	}else
-	{
-	UE_LOG(LogTemp, Log, TEXT("no controller"));
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("Cound not get hud"));
 
+		}
 	}
 }
 

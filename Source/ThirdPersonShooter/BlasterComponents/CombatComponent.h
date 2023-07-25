@@ -48,6 +48,15 @@ private:
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
 	bool bFireButtonPressed;
+		/** 
+	* HUD and crosshairs
+	*/
+
+	float CrosshairVelocityFactor;
+	float CrosshairInAirFactor;
+	float CrosshairAimFactor;
+	float CrosshairShootingFactor;
+	
 	FVector HitTarget;
 	/** 
 	* Aiming and FOV
