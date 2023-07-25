@@ -48,7 +48,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
 	bool bFireButtonPressed;
-
+	FVector HitTarget;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

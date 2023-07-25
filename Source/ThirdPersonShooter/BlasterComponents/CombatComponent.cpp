@@ -47,7 +47,14 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// ...
 	// FHitResult HitResult;
 	// TraceUnderCrosshairs(HitResult);
+
 	SetHUDCrosshairs(DeltaTime);
+	if (Character && Character->IsLocallyControlled())
+	{
+		FHitResult HitResult;
+		TraceUnderCrosshairs(HitResult);
+		HitTarget = HitResult.ImpactPoint;
+	}
 }
 
 
@@ -180,7 +187,10 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 			ECollisionChannel::ECC_Visibility
 		);
 
-
+		if (!TraceHitResult.bBlockingHit)
+		{
+		TraceHitResult.ImpactPoint = End;
+		}
 			// DrawDebugSphere(
 			// 	GetWorld(),
 			// 	TraceHitResult.ImpactPoint,
