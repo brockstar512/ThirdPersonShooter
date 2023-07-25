@@ -71,6 +71,8 @@ public:
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
 	AWeapon* GetEqippedWeapon();
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}
+	FVector GetHitTarget() const;
+
 	//UPROPERTY(VisibleAnywhere, Category = CombatComponent)this will add a vriable string  called hello to the category on myblastercharacter
 	//FString hello = "Hello";
 

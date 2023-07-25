@@ -48,6 +48,13 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// FHitResult HitResult;
 	// TraceUnderCrosshairs(HitResult);
 	SetHUDCrosshairs(DeltaTime);
+
+	if (Character && Character->IsLocallyControlled())
+	{
+		FHitResult HitResult;
+		TraceUnderCrosshairs(HitResult);
+		HitTarget = HitResult.ImpactPoint;
+	}
 }
 
 

@@ -371,3 +371,9 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 	}
 }
 
+FVector ABlasterCharacter::GetHitTarget() const
+{
+	if (Combat == nullptr) return FVector();
+	return Combat->HitTarget;
+}
+

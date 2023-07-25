@@ -53,6 +53,7 @@ private:
 	*/
 	float CrosshairVelocityFactor;
 	float CrosshairInAirFactor;
+	FVector HitTarget;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
