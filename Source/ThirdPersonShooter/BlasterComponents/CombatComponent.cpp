@@ -145,6 +145,7 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 		if (EquippedWeapon)
 		{
 			CrosshairShootingFactor = .75f;
+
 		}
 	}
 }
@@ -300,17 +301,17 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 
 			if (bAiming)
 			{
-						UE_LOG(LogTemp, Log, TEXT("Aiming crosshairs"));
 
 				CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.58f, DeltaTime, 30.f);
 			}
 			else
 			{
-				UE_LOG(LogTemp, Log, TEXT("not aiming"));
 				CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.f, DeltaTime, 30.f);
 			}
 
-			CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.f, DeltaTime, 40.f);
+			//issue... seems like its immediatly turning the number to 0
+			//always interpolate factor down to 0
+			CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.f, DeltaTime, 10.f);
 
 			HUDPackage.CrosshairSpread = 
 				0.5f + 
@@ -323,7 +324,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Log, TEXT("Cound not get hud"));
+			// UE_LOG(LogTemp, Log, TEXT("Cound not get hud"));
 
 		}
 	}

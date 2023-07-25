@@ -6,7 +6,7 @@
 void ABlasterHUD::DrawHUD()
 {
     Super::DrawHUD();
-    UE_LOG(LogTemp, Warning, TEXT("Drawing!"));
+    //UE_LOG(LogTemp, Warning, TEXT("Drawing!"));
 
    FVector2D ViewportSize;
 	if (GEngine)
