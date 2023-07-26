@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ThirdPersonShooter/HUD/BlasterHUD.h"//if we include header in a header file it will be included in the cpp file... if we just need to declare a variable here. we should forward declrare
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000.f
@@ -56,7 +57,7 @@ private:
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
 	float CrosshairShootingFactor;
-	
+	FHUDPackage HUDPackage;
 	FVector HitTarget;
 	/** 
 	* Aiming and FOV

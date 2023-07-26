@@ -11,7 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
-#include "ThirdPersonShooter/HUD/BlasterHUD.h"
+// #include "ThirdPersonShooter/HUD/BlasterHUD.h"//we do not need this here now because we included it now in the header
 #include "Camera/CameraComponent.h"
 
 // Sets default values for this component's properties
@@ -211,6 +211,21 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 		//UE_LOG(LogTemp, Warning, TEXT("sending out ray!"));
 
 		FVector Start = CrosshairWorldPosition;
+		//extending ray so it starts ahead of character not the camera
+		if(Character)
+		{
+			float DistanceToCharacter = (Character->GetActorLocation() - Start).Size();
+			//if it a little offest
+			Start+= CrosshairWorldDirection * (DistanceToCharacter + 50.f);
+			// 	DrawDebugSphere(
+			// 	GetWorld(),
+			// 	Start,
+			// 	12.f,
+			// 	12,
+			// 	FColor::Red,
+			// 	false
+			// );
+		}
 
 		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
 
@@ -224,6 +239,15 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 		if (!TraceHitResult.bBlockingHit)
 		{
 		TraceHitResult.ImpactPoint = End;
+		}
+										//get  the actor and check if it implements the interface
+		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
+		{
+			HUDPackage.CrosshairsColor = FLinearColor::Red;
+		}
+		else
+		{
+			HUDPackage.CrosshairsColor = FLinearColor::White;
 		}
 			// DrawDebugSphere(
 			// 	GetWorld(),
@@ -261,7 +285,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Got HUD"));
 
-			FHUDPackage HUDPackage;
+			
 			if (EquippedWeapon)
 			{
 				UE_LOG(LogTemp, Log, TEXT("Got crosshairs"));

@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ThirdPersonShooter/BlasterTypes/TurningInPlace.h"
+#include "ThirdPersonShooter/MyInterfaces/InteractWithCrosshairsInterface.h"
 #include "BlasterCharacter.generated.h"
 
 UCLASS()
-class THIRDPERSONSHOOTER_API ABlasterCharacter : public ACharacter
+class THIRDPERSONSHOOTER_API ABlasterCharacter : public ACharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
@@ -60,7 +61,10 @@ private:
 	void TurnInPlace(float DeltaTime);
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
+	void HideCameraIfCharacterClose();
 //getters and setters
+UPROPERTY(EditAnywhere)
+float CameraThreshold = 200.f;
 //when the replicated variable changes the inline function is going to run on the client
 //replication only changes when the variable changes
 public:	

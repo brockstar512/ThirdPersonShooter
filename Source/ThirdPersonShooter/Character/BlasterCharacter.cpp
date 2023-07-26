@@ -13,7 +13,6 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "BlasterAnimInstance.h"
 
-
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -40,7 +39,11 @@ ABlasterCharacter::ABlasterCharacter()
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera,ECollisionResponse::ECR_Ignore);
+	//if the camera collides with me ignore
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera,ECollisionResponse::ECR_Ignore);
+	//we are going to block peoples visibiltyrays
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+
 	GetCharacterMovement()->RotationRate = FRotator(0.f,0.f,850.f);
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	NetUpdateFrequency = 66.f;
@@ -106,6 +109,9 @@ void ABlasterCharacter::Tick(float DeltaTime)
 	AimOffset(DeltaTime);
 	//UE_LOG(LogTemp, Warning, TEXT("tick is running!"));
 
+	HideCameraIfCharacterClose();
+	
+
 
 }
 
@@ -155,6 +161,27 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 			StartAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 			// UE_LOG(LogTemp, Warning, TEXT("Not Turning"));
 		}
+	}
+}
+
+void ABlasterCharacter::HideCameraIfCharacterClose()
+{
+	if(!IsLocallyControlled())return;
+	if((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold)
+	{
+		GetMesh()->SetVisibility(false);
+		if(Combat && Combat->EquippedWeapon && Combat-> EquippedWeapon->GetWeaponMesh())
+		{
+			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+		}
+	}
+	else
+	{
+		GetMesh()->SetVisibility(true);
+		if(Combat && Combat->EquippedWeapon && Combat-> EquippedWeapon->GetWeaponMesh())
+		{
+			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}	
 	}
 }
 
