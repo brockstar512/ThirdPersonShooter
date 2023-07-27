@@ -11,6 +11,7 @@
 #include "ThirdPersonShooter/BlasterComponents/CombatComponent.h"
 #include "ThirdPersonShooter/Weapon/Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ThirdPersonShooter/ThirdPersonShooter.h"
 #include "BlasterAnimInstance.h"
 
 // Sets default values
@@ -38,10 +39,12 @@ ABlasterCharacter::ABlasterCharacter()
 	Combat->SetIsReplicated(true);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	//when you hit this channel heres how you treat it
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera,ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	//if the camera collides with me ignore
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera,ECollisionResponse::ECR_Ignore);
-	//we are going to block peoples visibiltyrays
+	//we are going to block peoples raycasts
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
 	GetCharacterMovement()->RotationRate = FRotator(0.f,0.f,850.f);
@@ -82,6 +85,28 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 		// UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+}
+
+void ABlasterCharacter::PlayHitReactMontage()
+{
+			UE_LOG(LogTemp, Warning, TEXT("Hit react montage start montage"));
+
+
+
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+			UE_LOG(LogTemp, Warning, TEXT("Hit react montage second stage"));
+
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		FName SectionName("FromFront");
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+		UE_LOG(LogTemp, Warning, TEXT("Hit react montage end montage"));
+
 }
 
 void ABlasterCharacter::BeginPlay()
@@ -183,6 +208,12 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}	
 	}
+}
+
+void ABlasterCharacter::MulticastHit_Implementation()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("Play Hit montage"));
+	PlayHitReactMontage();
 }
 
 //this will only run on thr server

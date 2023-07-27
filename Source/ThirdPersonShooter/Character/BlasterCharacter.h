@@ -20,6 +20,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bAiming);
+	UFUNCTION(NetMulticast, Unreliable)//this is for hit reactions which will happen often and is just sugar coating so its not an important rpc
+	void MulticastHit();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
@@ -34,6 +37,7 @@ protected:
 	void AimOffset(float DeltaTime);
 	void FireButtonPressed();
 	void FireButtonReleased();
+	void PlayHitReactMontage();
 
 
 
@@ -61,7 +65,10 @@ private:
 	void TurnInPlace(float DeltaTime);
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* HitReactMontage;
 	void HideCameraIfCharacterClose();
+
 //getters and setters
 UPROPERTY(EditAnywhere)
 float CameraThreshold = 200.f;

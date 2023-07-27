@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "ThirdPersonShooter/Character/BlasterCharacter.h"
+#include "ThirdPersonShooter/ThirdPersonShooter.h"
 #include "Sound/SoundCue.h"
 // Sets default values
 AProjectile::AProjectile()
@@ -19,8 +21,12 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	//send a raycast to hit this channel
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	//block static meshes
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	//if you hit the skeletal mesh block it
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECollisionResponse::ECR_Block);
 	//PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
@@ -30,6 +36,18 @@ void AProjectile::Destroyed()
 {
 	Super::Destroyed();
 	//because when you destroy a replicated actor every machine where that actor is is also going to be destroyed this will run for everyone
+	if(ImpactParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			ImpactParticles,
+			GetActorTransform()
+		);
+	}
+	if(ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound,GetActorLocation());
+	}
 }
 
 // Called when the game starts or when spawned
@@ -50,7 +68,7 @@ void AProjectile::BeginPlay()
 
 	if(HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("binding on hit function"));
+		//UE_LOG(LogTemp, Warning, TEXT("binding on hit function"));
 
 		//we are only applying hit events to server
 		CollisionBox->OnComponentHit.AddDynamic(this,&AProjectile::OnHit);
@@ -60,19 +78,14 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("On Hit"));
-	if(ImpactParticles)
+	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor);
+	if (BlasterCharacter)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(
-			GetWorld(),
-			ImpactParticles,
-			GetActorTransform()
-		);
+		
+		BlasterCharacter->MulticastHit();
 	}
-	if(ImpactSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound,GetActorLocation());
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("On Hit"));
+
 
 	Destroy();
 }

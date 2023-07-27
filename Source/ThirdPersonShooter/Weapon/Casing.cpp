@@ -31,7 +31,7 @@ void ACasing::BeginPlay()
 
 void ACasing::OnHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Shell has hit something!"));
+	// UE_LOG(LogTemp, Warning, TEXT("Shell has hit something!"));
 	if(ShellSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ShellSound,GetActorLocation());

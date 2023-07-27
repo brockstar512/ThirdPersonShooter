@@ -271,7 +271,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 	// 	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("Bool: %s"), Character->Controller == nullptr ? TEXT("true") : TEXT("false")));
 	// }
 	if (Character == nullptr || Character->Controller == nullptr) return;
-	UE_LOG(LogTemp, Log, TEXT("Top of hud"));
+	//UE_LOG(LogTemp, Log, TEXT("Top of hud"));
 	// UE_LOG(LogTemp, Warning, TEXT("Hello"));
 	//assign this vairable controller to the controller in character
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
@@ -283,12 +283,12 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 
 		if (HUD)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Got HUD"));
+			//UE_LOG(LogTemp, Log, TEXT("Got HUD"));
 
 			
 			if (EquippedWeapon)
 			{
-				UE_LOG(LogTemp, Log, TEXT("Got crosshairs"));
+				//UE_LOG(LogTemp, Log, TEXT("Got crosshairs"));
 
 				HUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
 				HUDPackage.CrosshairsLeft = EquippedWeapon->CrosshairsLeft;
