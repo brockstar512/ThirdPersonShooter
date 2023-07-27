@@ -131,13 +131,39 @@ void ABlasterCharacter::Tick(float DeltaTime)
 {
 
 	Super::Tick(DeltaTime);
-	AimOffset(DeltaTime);
+
+	if(GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		//if you are the server animated how you normally do
+		AimOffset(DeltaTime);
+	}
+	else
+	{
+		//if you are not the server own player. 
+			//handle the replicated movement 
+			//get a reference to the last time we did a net update to replicate the movement
+			TimeSinceLastMovementReplication += DeltaTime;
+			//on rep changes only when we move, so we are creating a timesptamp to make sure we are updating the animattio n
+			//even when we are not activly moving.
+		if (TimeSinceLastMovementReplication > 0.25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+		//do the pitch
+		CalculateAO_Pitch();
+	}
 	//UE_LOG(LogTemp, Warning, TEXT("tick is running!"));
 
 	HideCameraIfCharacterClose();
-	
+}
 
-
+void ABlasterCharacter::OnRep_ReplicatedMovement()
+{
+	//the server is controller the movement of the characters that don't have authority
+	Super::OnRep_ReplicatedMovement();
+	SimProxiesTurn();
+	//reset our value so we now the last time we updated on the net
+	TimeSinceLastMovementReplication = 0.f;
 }
 
 void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -183,7 +209,7 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 		if (FMath::Abs(AO_Yaw) < 15.f)
 		{
 			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
-			StartAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 			// UE_LOG(LogTemp, Warning, TEXT("Not Turning"));
 		}
 	}
@@ -346,15 +372,14 @@ void ABlasterCharacter::AimButtonReleased()
 void ABlasterCharacter::AimOffset(float DeltaTime)
 {
 	if (Combat && Combat->EquippedWeapon == nullptr) return;
-	FVector Velocity = GetVelocity();
-	Velocity.Z = 0.f;
-	float Speed = Velocity.Size();
+	float Speed = CalculateSpeed();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
 	if (Speed == 0.f && !bIsInAir) // standing still, not jumping
 	{
+		bRotateRootBone = true;
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartAimRotation);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
 		if (TurningInPlace == ETurningInPlace::ETIP_NotTurning)
 		{
@@ -365,13 +390,66 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 	}
 	if (Speed > 0.f || bIsInAir) // running, or jumping
 	{
-		StartAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		AO_Yaw = 0.f; 
+		bRotateRootBone = false;
+		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	}
 
-	AO_Pitch = GetBaseAimRotation().Pitch;
+	CalculateAO_Pitch();
+}
+
+void ABlasterCharacter::SimProxiesTurn()
+{
+	//simulate the turn 
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+	bRotateRootBone = false;
+	float Speed = CalculateSpeed();
+	//if we are running we start sliding.. when we are running we are preventing us from going into the turning state 
+	if (Speed > 0.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+	//get the last rotatioj
+	//then update the rotation
+	ProxyRotationLastFrame = ProxyRotation;
+	ProxyRotation = GetActorRotation();
+	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
+
+	UE_LOG(LogTemp, Warning, TEXT("ProxyYaw: %f"), ProxyYaw);
+	//determine the turn based of the delta
+	if (FMath::Abs(ProxyYaw) > TurnThreshold)
+	{
+		if (ProxyYaw > TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Right;
+		}
+		else if (ProxyYaw < -TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Left;
+		}
+		else
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		}
+		return;
+	}
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+
+}
+
+float ABlasterCharacter::CalculateSpeed()
+{
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	return Velocity.Size();
+}
+
+void ABlasterCharacter::CalculateAO_Pitch()
+{
+		AO_Pitch = GetBaseAimRotation().Pitch;
 	if (AO_Pitch > 90.f && !IsLocallyControlled())
 	{
 		// map pitch from [270, 360) to [-90, 0)

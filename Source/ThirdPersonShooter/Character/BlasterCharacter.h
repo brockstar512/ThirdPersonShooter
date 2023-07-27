@@ -22,7 +22,7 @@ public:
 	void PlayFireMontage(bool bAiming);
 	UFUNCTION(NetMulticast, Unreliable)//this is for hit reactions which will happen often and is just sugar coating so its not an important rpc
 	void MulticastHit();
-
+    virtual void OnRep_ReplicatedMovement() override;
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
@@ -35,6 +35,7 @@ protected:
 	void AimButtonPressed();
 	void AimButtonReleased();
 	void AimOffset(float DeltaTime);
+	void SimProxiesTurn();
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void PlayHitReactMontage();
@@ -42,6 +43,7 @@ protected:
 
 
 private:
+	void CalculateAO_Pitch();
 	UPROPERTY(VisibleAnywhere, Category = CameraAnywhere)
 	class USpringArmComponent* CameraBoom;
 	UPROPERTY(VisibleAnywhere, Category = CameraAnywhere)
@@ -60,7 +62,7 @@ private:
 	float AO_Yaw;
 	float InterpAO_Yaw;
 	float AO_Pitch;	
-	FRotator StartAimRotation;
+	FRotator StartingAimRotation;
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 	UPROPERTY(EditAnywhere, Category = Combat)
@@ -68,6 +70,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* HitReactMontage;
 	void HideCameraIfCharacterClose();
+	bool bRotateRootBone;
+	float TurnThreshold = 0.5f;
+	FRotator ProxyRotationLastFrame;
+	FRotator ProxyRotation;
+	float ProxyYaw;
+	float TimeSinceLastMovementReplication;
+	float CalculateSpeed();
 
 //getters and setters
 UPROPERTY(EditAnywhere)
@@ -86,5 +95,6 @@ public:
 	//FString hello = "Hello";
 	FVector GetHitTarget() const;
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE bool ShouldRotateRootBone() const {return bRotateRootBone;}
 
 };
