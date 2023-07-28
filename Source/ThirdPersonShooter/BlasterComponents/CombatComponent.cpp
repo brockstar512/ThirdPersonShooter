@@ -13,7 +13,7 @@
 #include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
 // #include "ThirdPersonShooter/HUD/BlasterHUD.h"//we do not need this here now because we included it now in the header
 #include "Camera/CameraComponent.h"
-
+#include "TimerManager.h"
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
@@ -61,6 +61,27 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 	if(Character && Character->GetFollowCamera())
 	{
 		Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
+	}
+}
+
+void UCombatComponent::StartFireTimer()
+{
+	if (EquippedWeapon == nullptr || Character == nullptr) return;
+	Character->GetWorldTimerManager().SetTimer(
+		FireTimer,
+		this,
+		&UCombatComponent::FireTimerFinished,
+		EquippedWeapon->FireDelay
+	);
+}
+
+void UCombatComponent::FireTimerFinished()
+{
+	if (EquippedWeapon == nullptr) return;
+	bCanFire = true;
+	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
+	{
+		Fire();
 	}
 }
 
@@ -137,16 +158,7 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	bFireButtonPressed = bPressed;
 	if (bFireButtonPressed)
 	{
-		FHitResult HitResult;
-		TraceUnderCrosshairs(HitResult);
-		//telling the server i clicked fire and which point i was clicking at
-		ServerFire(HitResult.ImpactPoint);
-
-		if (EquippedWeapon)
-		{
-			CrosshairShootingFactor = .75f;
-
-		}
+		Fire();
 	}
 }
 
@@ -355,3 +367,17 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 }
 
 
+void UCombatComponent::Fire()
+{
+	if (bCanFire)
+	{
+		//telling the server i clicked fire and which point i was clicking at
+		bCanFire = false;
+		ServerFire(HitTarget);
+		if (EquippedWeapon)
+		{
+			CrosshairShootingFactor = .75f;
+		}
+		StartFireTimer();
+	}
+}

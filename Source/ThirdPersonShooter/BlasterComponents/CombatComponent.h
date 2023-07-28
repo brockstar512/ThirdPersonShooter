@@ -31,6 +31,7 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	void ServerSetAiming(bool bIsAiming);
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+	void Fire();
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 	UFUNCTION(NetMulticast, Reliable)
@@ -75,6 +76,17 @@ private:
 	float ZoomInterpSpeed = 20.f;
 
 	void InterpFOV(float DeltaTime);
+
+	/** 
+	* Automatic fire
+	*/
+	FTimerHandle FireTimer;
+
+	void StartFireTimer();
+	void FireTimerFinished();
+	
+
+	bool bCanFire = true;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

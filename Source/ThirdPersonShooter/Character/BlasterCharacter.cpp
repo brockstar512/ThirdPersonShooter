@@ -13,7 +13,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "ThirdPersonShooter/ThirdPersonShooter.h"
 #include "BlasterAnimInstance.h"
-
+#include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -60,6 +60,9 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//replication does not run on the server so we need to hanlde a special case when the server overlaps
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	//register replicted health
+	DOREPLIFETIME(ABlasterCharacter, Health);
+
 }
 
 void ABlasterCharacter::PostInitializeComponents()
@@ -112,6 +115,12 @@ void ABlasterCharacter::PlayHitReactMontage()
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
+	if(BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDHealth(Health,MaxHealth);
+	}
 	
 }
 
@@ -445,6 +454,11 @@ float ABlasterCharacter::CalculateSpeed()
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	return Velocity.Size();
+}
+
+void ABlasterCharacter::OnRep_Health()
+{
+
 }
 
 void ABlasterCharacter::CalculateAO_Pitch()

@@ -46,6 +46,15 @@ UPROPERTY(EditAnywhere, Category= Crosshairs)
 
 	UPROPERTY(EditAnywhere)
 	float ZoomInterpSpeed = 20.f;
+
+	/** 
+	* Automatic Fire
+	*/
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float FireDelay = .15f;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	bool bAutomatic = true;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -69,6 +78,7 @@ protected:
 		int32 OtherBodyIndex
 	);
 
+	
 private:
 	UPROPERTY(VisibleAnywhere, Category="Weapon Properties" )
 	USkeletalMeshComponent* WeaponMesh;
