@@ -40,7 +40,7 @@ protected:
 	void FireButtonReleased();
 	void PlayHitReactMontage();
 	UFUNCTION()
-	void RecieveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 	void UpdateHUDHealth();
 
 private:
