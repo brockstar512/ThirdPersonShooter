@@ -20,8 +20,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bAiming);
-	UFUNCTION(NetMulticast, Unreliable)//this is for hit reactions which will happen often and is just sugar coating so its not an important rpc
-	void MulticastHit();
+	// UFUNCTION(NetMulticast, Unreliable)//this is for hit reactions which will happen often and is just sugar coating so its not an important rpc
+	// void MulticastHit();
     virtual void OnRep_ReplicatedMovement() override;
 protected:
 	virtual void BeginPlay() override;
@@ -39,8 +39,9 @@ protected:
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void PlayHitReactMontage();
-
-
+	UFUNCTION()
+	void RecieveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
+	void UpdateHUDHealth();
 
 private:
 	void CalculateAO_Pitch();

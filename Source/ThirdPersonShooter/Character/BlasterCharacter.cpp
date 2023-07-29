@@ -53,7 +53,6 @@ ABlasterCharacter::ABlasterCharacter()
 	MinNetUpdateFrequency = 33.f;
 
 
-
 }
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -71,6 +70,17 @@ void ABlasterCharacter::PostInitializeComponents()
 	if(Combat)
 	{
 		Combat->Character = this;//passing this ccharacter off to the combat class
+	}
+}
+
+void ABlasterCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UpdateHUDHealth();
+	if(HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::RecieveDamage);
 	}
 }
 
@@ -112,17 +122,17 @@ void ABlasterCharacter::PlayHitReactMontage()
 
 }
 
-void ABlasterCharacter::BeginPlay()
+void ABlasterCharacter::RecieveDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatorController, AActor * DamageCauser)
 {
-	Super::BeginPlay();
-
-	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
-	if(BlasterPlayerController)
-	{
-		BlasterPlayerController->SetHUDHealth(Health,MaxHealth);
-	}
-	
+	//this will call on rep health... the replicated function will take care of playing the montage on the client
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	//variable replication is more effecient than rpc
+	//this wil run on the server
+	UpdateHUDHealth();
+	PlayHitReactMontage();
 }
+
+
 
 void ABlasterCharacter::Jump()
 {
@@ -245,11 +255,11 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 	}
 }
 
-void ABlasterCharacter::MulticastHit_Implementation()
-{
-	// UE_LOG(LogTemp, Warning, TEXT("Play Hit montage"));
-	PlayHitReactMontage();
-}
+// void ABlasterCharacter::MulticastHit_Implementation()
+// {
+// 	// UE_LOG(LogTemp, Warning, TEXT("Play Hit montage"));
+// 	PlayHitReactMontage();
+// }
 
 //this will only run on thr server
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
@@ -427,7 +437,7 @@ void ABlasterCharacter::SimProxiesTurn()
 	ProxyRotation = GetActorRotation();
 	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
 
-	UE_LOG(LogTemp, Warning, TEXT("ProxyYaw: %f"), ProxyYaw);
+	//UE_LOG(LogTemp, Warning, TEXT("ProxyYaw: %f"), ProxyYaw);
 	//determine the turn based of the delta
 	if (FMath::Abs(ProxyYaw) > TurnThreshold)
 	{
@@ -458,7 +468,11 @@ float ABlasterCharacter::CalculateSpeed()
 
 void ABlasterCharacter::OnRep_Health()
 {
+	//it's going to get subtracted on the server then when that changes this function runs on the client
+	//UE_LOG(LogTemp,Display,TEXT("HEALTH Rep:: %f"),Health);
 
+	UpdateHUDHealth();
+	PlayHitReactMontage();
 }
 
 void ABlasterCharacter::CalculateAO_Pitch()
@@ -527,3 +541,13 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 	}
 }
 
+void ABlasterCharacter::UpdateHUDHealth()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	
+	if(BlasterPlayerController)
+	{
+		//UE_LOG(LogTemp,Display,TEXT("HEALTH:: %f"),Health);
+		BlasterPlayerController->SetHUDHealth(Health,MaxHealth);
+	}
+}
