@@ -39,6 +39,7 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
     bAiming= BlasterCharacter->IsAiming();//I believe we are binding the bAiming bool for our aimation states to the blast character is aiming
     TurningInPlace = BlasterCharacter->GetTurningInPlace();
     bRotateRootBone = BlasterCharacter->ShouldRotateRootBone();
+    bElimmed = BlasterCharacter->IsElimmed();
     //offset yah for straffing
 	// Offset Yaw for Strafing
 	FRotator AimRotation = BlasterCharacter->GetBaseAimRotation();

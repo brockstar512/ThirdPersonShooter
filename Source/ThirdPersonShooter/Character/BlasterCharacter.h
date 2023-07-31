@@ -20,6 +20,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bAiming);
+	void PlayElimMontage();
 	// UFUNCTION(NetMulticast, Unreliable)//this is for hit reactions which will happen often and is just sugar coating so its not an important rpc
 	// void MulticastHit();
     virtual void OnRep_ReplicatedMovement() override;
@@ -71,6 +72,8 @@ private:
 	class UAnimMontage* FireWeaponMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* HitReactMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* ElimMontage;
 	void HideCameraIfCharacterClose();
 	bool bRotateRootBone;
 	float TurnThreshold = 0.5f;
@@ -86,7 +89,7 @@ private:
 	float Health = 100.f;
 	UFUNCTION()
 	void OnRep_Health();
-
+	bool bElimmed = false;
 	class ABlasterPlayerController* BlasterPlayerController;
 //getters and setters
 UPROPERTY(EditAnywhere)
@@ -106,5 +109,5 @@ public:
 	FVector GetHitTarget() const;
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool ShouldRotateRootBone() const {return bRotateRootBone;}
-
+	FORCEINLINE bool IsElimmed() const {return bElimmed;}
 };
