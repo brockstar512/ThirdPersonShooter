@@ -14,6 +14,7 @@
 #include "ThirdPersonShooter/ThirdPersonShooter.h"
 #include "BlasterAnimInstance.h"
 #include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
+#include "ThirdPersonShooter/GameMode/BlasterGameMode.h"
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -100,6 +101,11 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+void ABlasterCharacter::Elim()
+{
+
+}
+
 void ABlasterCharacter::PlayHitReactMontage()
 {
 			UE_LOG(LogTemp, Warning, TEXT("Hit react montage start montage"));
@@ -130,6 +136,21 @@ void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const
 	//this wil run on the server
 	UpdateHUDHealth();
 	PlayHitReactMontage();
+
+	if(Health == 0.f)
+	{
+
+	
+
+	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+
+		if(BlasterGameMode)
+		{
+			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
+			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController,AttackerController);
+		}
+	}
 }
 
 
