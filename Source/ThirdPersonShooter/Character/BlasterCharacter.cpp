@@ -110,7 +110,7 @@ void ABlasterCharacter::PlayElimMontage()
 	}
 }
 
-void ABlasterCharacter::Elim()
+void ABlasterCharacter::Elim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();

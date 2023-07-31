@@ -24,6 +24,7 @@ public:
 	// UFUNCTION(NetMulticast, Unreliable)//this is for hit reactions which will happen often and is just sugar coating so its not an important rpc
 	// void MulticastHit();
     virtual void OnRep_ReplicatedMovement() override;
+	UFUNCTION(NetMulticast, Reliable)
 	void Elim();
 protected:
 	virtual void BeginPlay() override;
