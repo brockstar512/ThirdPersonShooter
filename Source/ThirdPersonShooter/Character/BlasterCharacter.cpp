@@ -80,7 +80,7 @@ void ABlasterCharacter::BeginPlay()
 	UpdateHUDHealth();
 	if(HasAuthority())
 	{
-		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::RecieveDamage);
+		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
 	}
 }
 
@@ -122,7 +122,7 @@ void ABlasterCharacter::PlayHitReactMontage()
 
 }
 
-void ABlasterCharacter::RecieveDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatorController, AActor * DamageCauser)
+void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatorController, AActor * DamageCauser)
 {
 	//this will call on rep health... the replicated function will take care of playing the montage on the client
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);

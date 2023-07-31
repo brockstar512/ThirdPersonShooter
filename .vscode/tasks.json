@@ -1,0 +1,720 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "ThirdPersonShooter Mac Debug Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Debug Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter Mac Debug Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Debug Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac DebugGame Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac DebugGame Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter Mac DebugGame Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac DebugGame Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Development Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Development Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter Mac Development Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Development Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Test Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Test",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Test Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Test",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter Mac Test Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Test Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Test",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Shipping Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Shipping",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Shipping Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Shipping",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter Mac Shipping Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter Mac Shipping Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"Mac",
+				"Shipping",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Debug Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Debug Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter IOS Debug Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Debug Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS DebugGame Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS DebugGame Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter IOS DebugGame Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS DebugGame Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Development Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Development Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter IOS Development Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Development Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Test Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Test",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Test Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Test",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter IOS Test Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Test Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Test",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Shipping Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Shipping",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Shipping Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Shipping",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooter IOS Shipping Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooter IOS Shipping Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooter",
+				"IOS",
+				"Shipping",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac Debug Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac Debug Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooterEditor Mac Debug Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac Debug Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"Debug",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac DebugGame Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac DebugGame Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooterEditor Mac DebugGame Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac DebugGame Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"DebugGame",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac Development Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac Development Rebuild",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex"
+			],
+			"problemMatcher": "$msCompile",
+			"dependsOn": [
+				"ThirdPersonShooterEditor Mac Development Clean"
+			],
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		},
+		{
+			"label": "ThirdPersonShooterEditor Mac Development Clean",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"ThirdPersonShooterEditor",
+				"Mac",
+				"Development",
+				"/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/ThirdPersonShooter.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_5.2"
+			}
+		}
+	]
+}

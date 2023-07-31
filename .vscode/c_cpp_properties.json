@@ -1,0 +1,36 @@
+{
+	"configurations": [
+		{
+			"name": "ThirdPersonShooterEditor Editor Mac Development (ThirdPersonShooter)",
+			"compilerPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"compilerArgs": [
+				"-isysroot",
+				"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk"
+			],
+			"macFrameworkPath": [
+				"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks"
+			],
+			"cStandard": "c17",
+			"cppStandard": "c++17",
+			"intelliSenseMode": "clang-x64",
+			"configurationProvider": "epic.ue",
+			"compileCommands": "/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/.vscode/compileCommands_ThirdPersonShooter.json"
+		},
+		{
+			"name": "Mac",
+			"compilerPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"compilerArgs": [
+				"-isysroot",
+				"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk"
+			],
+			"macFrameworkPath": [
+				"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks"
+			],
+			"cStandard": "c17",
+			"cppStandard": "c++17",
+			"intelliSenseMode": "clang-x64",
+			"configurationProvider": "epic.ue",
+			"compileCommands": "/Users/marshallbrock/Documents/unreal projects/ThirdPersonShooter 5.2/.vscode/compileCommands_Default.json"
+		}
+	]
+}

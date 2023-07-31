@@ -6,16 +6,11 @@
 		},
 		{
 			"name": "UE5",
-			"path": "/Users/Shared/Epic Games/UE_5.1"
+			"path": "/Users/Shared/Epic Games/UE_5.2"
 		}
 	],
 	"settings": {
-		"typescript.tsc.autoDetect": "off",
-		"files.associations": {
-			"__config": "cpp",
-			"__nullptr": "cpp",
-			"valarray": "cpp"
-		}
+		"typescript.tsc.autoDetect": "off"
 	},
 	"extensions": {
 		"recommendations": [
