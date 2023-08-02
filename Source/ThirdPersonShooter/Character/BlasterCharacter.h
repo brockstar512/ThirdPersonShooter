@@ -24,8 +24,9 @@ public:
 	// UFUNCTION(NetMulticast, Unreliable)//this is for hit reactions which will happen often and is just sugar coating so its not an important rpc
 	// void MulticastHit();
     virtual void OnRep_ReplicatedMovement() override;
-	UFUNCTION(NetMulticast, Reliable)
 	void Elim();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastElim();
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
@@ -91,6 +92,11 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 	bool bElimmed = false;
+	FTimerHandle ElimTimer;
+	UPROPERTY(EditDefaultsOnly)//can only edit the default character
+	float ElimDelay = 3.f;
+	void ElimTimerFinished();
+
 	class ABlasterPlayerController* BlasterPlayerController;
 //getters and setters
 UPROPERTY(EditAnywhere)

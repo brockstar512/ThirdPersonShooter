@@ -15,5 +15,5 @@ class THIRDPERSONSHOOTER_API ABlasterGameMode : public AGameMode
 	GENERATED_BODY()
 public:
 virtual void PlayerEliminated(class ABlasterCharacter* ElimmedCharacter, class ABlasterPlayerController* VictimController,class ABlasterPlayerController* AttackerController);
-
+virtual void RequestRespawn(class ACharacter* ElimmedCharacter, AController* ElimmedController);
 };

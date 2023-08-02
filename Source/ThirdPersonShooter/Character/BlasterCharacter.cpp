@@ -15,6 +15,9 @@
 #include "BlasterAnimInstance.h"
 #include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
 #include "ThirdPersonShooter/GameMode/BlasterGameMode.h"
+#include "TimerManager.h"
+
+
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -110,10 +113,30 @@ void ABlasterCharacter::PlayElimMontage()
 	}
 }
 
-void ABlasterCharacter::Elim_Implementation()
+void ABlasterCharacter::Elim()
+{
+	MulticastElim();
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ABlasterCharacter::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
+void ABlasterCharacter::MulticastElim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
+}
+
+void ABlasterCharacter::ElimTimerFinished()
+{
+	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+	if (BlasterGameMode)
+	{
+		BlasterGameMode->RequestRespawn(this, Controller);
+	}
 }
 
 void ABlasterCharacter::PlayHitReactMontage()
@@ -505,6 +528,8 @@ void ABlasterCharacter::OnRep_Health()
 	UpdateHUDHealth();
 	PlayHitReactMontage();
 }
+
+
 
 void ABlasterCharacter::CalculateAO_Pitch()
 {
