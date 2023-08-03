@@ -24,6 +24,7 @@ class THIRDPERSONSHOOTER_API AWeapon : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AWeapon();
+	void Dropped();
 	/**
 	 * Textures for the weapon crosshairs
 	*/

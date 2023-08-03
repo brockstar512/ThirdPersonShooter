@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "ThirdPersonShooter/BlasterTypes/TurningInPlace.h"
 #include "ThirdPersonShooter/MyInterfaces/InteractWithCrosshairsInterface.h"
+#include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
 UCLASS()
@@ -96,6 +97,23 @@ private:
 	UPROPERTY(EditDefaultsOnly)//can only edit the default character
 	float ElimDelay = 3.f;
 	void ElimTimerFinished();
+	/*
+	Disolve effect
+	*/
+	UPROPERTY(VisibleAnywhere)
+	UTimelineComponent* DissolveTimeline;
+	FOnTimelineFloat DissolveTrack;
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* DissolveCurve;
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveValue);
+	void StartDissolve();
+	//dynamic instance that changes
+	UPROPERTY(VisibleAnywhere,Category = Elim)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
+	//material instance that is the reference to the material
+	UPROPERTY(EditAnywhere,Category = Elim)
+	UMaterialInstance* DissolveMaterialInstance;
 
 	class ABlasterPlayerController* BlasterPlayerController;
 //getters and setters
