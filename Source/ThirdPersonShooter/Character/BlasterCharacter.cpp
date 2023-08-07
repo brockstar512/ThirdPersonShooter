@@ -16,7 +16,10 @@
 #include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
 #include "ThirdPersonShooter/GameMode/BlasterGameMode.h"
 #include "TimerManager.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "ThirdPersonShooter/PlayerState/BlasterPlayerState.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -154,6 +157,26 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// Spawn elim bot
+	if (ElimBotEffect)
+	{
+		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			ElimBotEffect,
+			ElimBotSpawnPoint,
+			GetActorRotation()
+		);
+	}
+	if (ElimBotSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(
+			this,
+			ElimBotSound,
+			GetActorLocation()
+		);
+	}
 }
 
 void ABlasterCharacter::ElimTimerFinished()
@@ -188,13 +211,13 @@ void ABlasterCharacter::StartDissolve()
 
 void ABlasterCharacter::PlayHitReactMontage()
 {
-			UE_LOG(LogTemp, Warning, TEXT("Hit react montage start montage"));
+			// UE_LOG(LogTemp, Warning, TEXT("Hit react montage start montage"));
 
 
 
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
-			UE_LOG(LogTemp, Warning, TEXT("Hit react montage second stage"));
+			// UE_LOG(LogTemp, Warning, TEXT("Hit react montage second stage"));
 
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -278,6 +301,7 @@ void ABlasterCharacter::Tick(float DeltaTime)
 	//UE_LOG(LogTemp, Warning, TEXT("tick is running!"));
 
 	HideCameraIfCharacterClose();
+	PollInit();
 }
 
 void ABlasterCharacter::OnRep_ReplicatedMovement()
@@ -655,5 +679,27 @@ void ABlasterCharacter::UpdateHUDHealth()
 	{
 		//UE_LOG(LogTemp,Display,TEXT("HEALTH:: %f"),Health);
 		BlasterPlayerController->SetHUDHealth(Health,MaxHealth);
+	}
+}
+
+void ABlasterCharacter::PollInit()
+{
+	if(BlasterPlayerState == nullptr)
+	{
+		BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+		if(BlasterPlayerState)
+		{
+			BlasterPlayerState->AddToScore(0.f);
+		}
+	}
+}
+
+void ABlasterCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	if (ElimBotComponent)
+	{
+		ElimBotComponent->DestroyComponent();
 	}
 }

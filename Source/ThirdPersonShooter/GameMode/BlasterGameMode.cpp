@@ -6,10 +6,19 @@
 #include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
+#include "ThirdPersonShooter/PlayerState/BlasterPlayerState.h"
 
 void ABlasterGameMode::PlayerEliminated(class ABlasterCharacter* ElimmedCharacter, class ABlasterPlayerController* VictimController,class ABlasterPlayerController* AttackerController)
 {
-    if(ElimmedCharacter)
+	ABlasterPlayerState* AttackerPlayerState = AttackerController ? Cast<ABlasterPlayerState>(AttackerController->PlayerState) : nullptr;
+    ABlasterPlayerState* VictimControllerState = VictimController ? Cast<ABlasterPlayerState>(VictimController->PlayerState) : nullptr;
+
+	if(AttackerPlayerState && AttackerPlayerState !=VictimControllerState)
+	{
+		AttackerPlayerState->AddToScore(1.f);
+	}
+
+	if(ElimmedCharacter)
     {
         ElimmedCharacter->Elim();
     }
