@@ -133,6 +133,7 @@ UPROPERTY(VisibleAnywhere)
 UParticleSystemComponent* ElimBotComponent;
 UPROPERTY(EditAnywhere)
 class USoundCue* ElimBotSound;
+UPROPERTY()
 class ABlasterPlayerState* BlasterPlayerState;
 
 public:	
