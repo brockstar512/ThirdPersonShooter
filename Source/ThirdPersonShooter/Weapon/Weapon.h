@@ -38,6 +38,8 @@ UPROPERTY(EditAnywhere, Category= Crosshairs)
 	UTexture2D* CrosshairsTop;
 	UPROPERTY(EditAnywhere, Category= Crosshairs)
 	UTexture2D* CrosshairsBottom;
+	virtual void OnRep_Owner() override;
+	void SetHUDAmmo();
 	/** 
 	* Zoomed FOV while aiming
 	*/
@@ -55,6 +57,21 @@ UPROPERTY(EditAnywhere, Category= Crosshairs)
 	float FireDelay = .15f;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	bool bAutomatic = true;
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
+	int32 Ammo;
+
+	UFUNCTION()
+	void OnRep_Ammo();
+
+	void SpendRound();
+	
+	UPROPERTY(EditAnywhere)
+	int32 MagCapacity;
+
+    UPROPERTY()
+	class ABlasterCharacter* BlasterOwnerCharacter;
+	UPROPERTY()
+	class ABlasterPlayerController* BlasterOwnerController;
 
 protected:
 	// Called when the game starts or when spawned
@@ -113,6 +130,6 @@ public:
 	virtual void Fire(const FVector& HitTarget);
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
-
+	bool IsEmpty();
 
 };

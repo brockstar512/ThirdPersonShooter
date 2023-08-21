@@ -85,6 +85,14 @@ void UCombatComponent::FireTimerFinished()
 	}
 }
 
+bool UCombatComponent::CanFire()
+{
+	if(EquippedWeapon == nullptr) return false;
+
+	return !EquippedWeapon ->IsEmpty() || !bCanFire;
+
+}
+
 // Called every frame
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -125,6 +133,11 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 		return;
 	}
 
+	if(EquippedWeapon)
+	{
+		EquippedWeapon->Dropped();
+	}
+
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
@@ -135,6 +148,7 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 	}
 
 	EquippedWeapon->SetOwner(Character);
+	EquippedWeapon->SetHUDAmmo();
 	// EquippedWeapon->ShowPickupWidget(false);
 	// EquippedWeapon->GetAreaSphere()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -170,7 +184,6 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
 	}
 }
-
 
 void UCombatComponent::OnRep_EquippedWeapon()
 {
@@ -280,7 +293,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 
 }
 
-
 void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 {
 	// UE_LOG(LogTemp, Log, TEXT("Bool 1 value is: %s"), Character->Controller == nullptr ? "true" : "false" );
@@ -376,7 +388,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 
 void UCombatComponent::Fire()
 {
-	if (bCanFire)
+	if (CanFire())
 	{
 		//telling the server i clicked fire and which point i was clicking at
 		bCanFire = false;
