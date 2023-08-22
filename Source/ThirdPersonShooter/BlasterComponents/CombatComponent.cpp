@@ -44,6 +44,10 @@ void UCombatComponent::BeginPlay()
 		}
 	}
 	
+	if(Character->HasAuthority())
+	{
+		InitializeCarriedAmmo();
+	}
 }
 
 void UCombatComponent::InterpFOV(float DeltaTime)
@@ -93,6 +97,16 @@ bool UCombatComponent::CanFire()
 
 }
 
+void UCombatComponent::OnRep_CarriedAmmo()
+{
+
+}
+
+void UCombatComponent::InitializeCarriedAmmo()
+{
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle,StartingARAmmo);
+}
+
 // Called every frame
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -123,6 +137,9 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	//we are registering replicated variables here
 	DOREPLIFETIME(UCombatComponent,EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent,bAiming);
+	//replicating only on the client owner
+	DOREPLIFETIME_CONDITION(UCombatComponent,CarriedAmmo, COND_OwnerOnly);
+
 
 }
 
@@ -149,6 +166,18 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 
 	EquippedWeapon->SetOwner(Character);
 	EquippedWeapon->SetHUDAmmo();
+
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	
+	if(CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+
+	if(Controller)
+	{
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+	}
 	// EquippedWeapon->ShowPickupWidget(false);
 	// EquippedWeapon->GetAreaSphere()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
