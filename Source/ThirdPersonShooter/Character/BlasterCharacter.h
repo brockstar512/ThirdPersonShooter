@@ -7,6 +7,7 @@
 #include "ThirdPersonShooter/BlasterTypes/TurningInPlace.h"
 #include "ThirdPersonShooter/MyInterfaces/InteractWithCrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
+#include "ThirdPersonShooter/BlasterTypes/CombatState.h"
 #include "BlasterCharacter.generated.h"
 
 UCLASS()
@@ -20,6 +21,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+	void PlayReloadMontage();
 	void PlayFireMontage(bool bAiming);
 	void PlayElimMontage();
 	// UFUNCTION(NetMulticast, Unreliable)//this is for hit reactions which will happen often and is just sugar coating so its not an important rpc
@@ -39,12 +41,15 @@ protected:
 	void EquipButtonPressed();
 	void CrouchButtonPressed();
 	void AimButtonPressed();
+	void ReloadButtonPressed();
 	void AimButtonReleased();
 	void AimOffset(float DeltaTime);
 	void SimProxiesTurn();
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void PlayHitReactMontage();
+
+
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 	void UpdateHUDHealth();
@@ -62,7 +67,7 @@ private:
 	class AWeapon* OverlappingWeapon;
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);//can only have a parameter of type it is replicating...this is to help figure out which widget to hide when we are not with it anymore
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
 	//reliable are guaranteed to be executed unreliable may or not be executed depending if the data packet was dropped similar to tcp vs UDP
 	UFUNCTION(Server,Reliable)//one off actiosna re good to make reliable
@@ -79,6 +84,8 @@ private:
 	UAnimMontage* HitReactMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ElimMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* ReloadMontage;
 	void HideCameraIfCharacterClose();
 	bool bRotateRootBone;
 	float TurnThreshold = 0.5f;
@@ -152,4 +159,5 @@ public:
 	FORCEINLINE bool IsElimmed() const {return bElimmed;}
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	ECombatState GetCombatState() const;
 };

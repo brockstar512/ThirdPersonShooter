@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ThirdPersonShooter/HUD/BlasterHUD.h"//if we include header in a header file it will be included in the cpp file... if we just need to declare a variable here. we should forward declrare
 #include "ThirdPersonShooter/Weapon/WeaponTypes.h"
+#include "ThirdPersonShooter/BlasterTypes/CombatState.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000.f
@@ -21,8 +22,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	friend class ABlasterCharacter;
 	void EquipWeapon(class AWeapon* WeaponToEquip);
-
-
+	void Reload();
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
 protected://	friend class ABlasterCharacter; now blaster character has access to all of the combat compoannts protected and priate stuff
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -39,6 +41,9 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 	void SetHUDCrosshairs(float DeltaTime);
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
+	void HandleReload();
 private:
 	class ABlasterCharacter* Character;
 	class ABlasterPlayerController* Controller;
@@ -104,6 +109,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 StartingARAmmo = 30;
 
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+	UFUNCTION()
+	void OnRep_CombatState();
+
+	
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

@@ -63,5 +63,7 @@ class THIRDPERSONSHOOTER_API UBlasterAnimInstance : public UAnimInstance
 		bool bRotateRootBone;
 		UPROPERTY(BlueprintReadOnly, Category= Movement, meta = (AllowPrivateAccess = "true"))
 		bool bElimmed;
+		UPROPERTY(BlueprintReadOnly, Category= Movement, meta = (AllowPrivateAccess = "true"))
+		bool bUseFABRIK;
 
 };

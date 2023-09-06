@@ -107,6 +107,8 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle,StartingARAmmo);
 }
 
+
+
 // Called every frame
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -137,6 +139,8 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	//we are registering replicated variables here
 	DOREPLIFETIME(UCombatComponent,EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent,bAiming);
+	DOREPLIFETIME(UCombatComponent,CombatState);
+
 	//replicating only on the client owner
 	DOREPLIFETIME_CONDITION(UCombatComponent,CarriedAmmo, COND_OwnerOnly);
 
@@ -182,6 +186,48 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 	// EquippedWeapon->GetAreaSphere()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
+}
+
+void UCombatComponent::Reload()
+{
+	if(CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
+	{
+		ServerReload();
+	}
+}
+
+void UCombatComponent::FinishReloading()
+{
+	if(Character == nullptr) return;
+
+	if(Character->HasAuthority())
+	{
+		CombatState = ECombatState::ECS_Unoccupied;
+	}
+}
+
+void UCombatComponent::HandleReload()
+{
+    Character->PlayReloadMontage();
+}
+
+void UCombatComponent::ServerReload_Implementation()
+{
+	if(Character == nullptr)
+	return;
+	
+	CombatState = ECombatState::ECS_Reloading;
+	HandleReload();//this only runs on the server... but then the combate state changes OnRep_CombatState will run on the client
+}
+
+void UCombatComponent::OnRep_CombatState()
+{
+	switch(CombatState)
+	{
+		case ECombatState::ECS_Reloading:
+		HandleReload();///this runs on the client
+		break;
+	}
 }
 
 void UCombatComponent::SetAiming(bool bIsAiming)
@@ -413,6 +459,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 		}
 	}
 }
+
 
 
 void UCombatComponent::Fire()

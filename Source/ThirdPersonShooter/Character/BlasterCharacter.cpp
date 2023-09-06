@@ -1,3 +1,4 @@
+#include "BlasterCharacter.h"
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
@@ -20,6 +21,7 @@
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "ThirdPersonShooter/PlayerState/BlasterPlayerState.h"
+#include "ThirdPersonShooter/Weapon/WeaponTypes.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -80,6 +82,8 @@ void ABlasterCharacter::PostInitializeComponents()
 	}
 }
 
+
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -103,6 +107,31 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 		SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
 
 		// UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void ABlasterCharacter::PlayReloadMontage()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && FireWeaponMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+		FName SectionName;
+
+		switch(Combat->EquippedWeapon->GetWeaponType())
+		{
+			case EWeaponType::EWT_AssaultRifle:
+			SectionName = FName("Rifle");
+			break;
+		}
+		// UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("Reloading")));
+	}
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
@@ -323,6 +352,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABlasterCharacter::ReloadButtonPressed);
 
 	//bind this macro from the input project settings mapping, with this function
 	PlayerInputComponent->BindAxis("MoveForward",this,&ABlasterCharacter::MoveForward);
@@ -438,6 +468,12 @@ FVector ABlasterCharacter::GetHitTarget() const
 {
 	if(Combat == nullptr) return FVector();
 	return Combat->HitTarget;
+}
+
+ECombatState ABlasterCharacter::GetCombatState() const
+{
+	if(Combat== nullptr) return ECombatState::ECS_MAX;
+	return Combat->CombatState;
 }
 
 void ABlasterCharacter::MoveForward(float Value)
@@ -708,5 +744,12 @@ void ABlasterCharacter::Destroyed()
 	if (ElimBotComponent)
 	{
 		ElimBotComponent->DestroyComponent();
+	}
+}
+void ABlasterCharacter::ReloadButtonPressed()
+{
+	if(Combat)
+	{
+		Combat->Reload();
 	}
 }

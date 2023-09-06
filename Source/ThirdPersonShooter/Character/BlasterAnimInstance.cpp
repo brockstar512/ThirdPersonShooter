@@ -5,6 +5,7 @@
 #include "BlasterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ThirdPersonShooter/BlasterTypes/CombatState.h"
 #include "ThirdPersonShooter/Weapon/Weapon.h"
 
 void UBlasterAnimInstance::NativeInitializeAnimation()
@@ -79,6 +80,6 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
         }
     }
     // UE_LOG(LogTemp, Warning, TEXT("yaw: %f "),YawOffset);
-
+    bUseFABRIK = BlasterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }
 
