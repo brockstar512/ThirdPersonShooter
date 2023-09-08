@@ -97,6 +97,14 @@ void AWeapon::OnRep_WeaponState()
 	}
 }
 
+void AWeapon::AddAmmo(int32 AmmoToAdd)
+{
+	Ammo = FMath::Clamp(Ammo - AmmoToAdd,0, MagCapacity);
+	UE_LOG(LogTemp, Warning, TEXT("adding ammo!"));
+
+	SetHUDAmmo();
+}
+
 void AWeapon::SetWeaponState(EWeaponState State)
 {
 	//this will change the variabke which will fire the replicate function attached to it on the clients....i think
@@ -234,6 +242,8 @@ void AWeapon::OnRep_Owner()
 
 void AWeapon::SetHUDAmmo()
 {
+	// UE_LOG(LogTemp, Warning, TEXT("Set hud ammo!"));
+
 	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
 	//update the HUD
 

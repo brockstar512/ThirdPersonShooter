@@ -71,7 +71,8 @@ void ABlasterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	bool bHUDValid = BlasterHUD &&
 		BlasterHUD->CharacterOverlay &&
 		BlasterHUD->CharacterOverlay->CarriedAmmoAmount;
-        
+        UE_LOG(LogTemp, Warning, TEXT("updated carried ammo! %d"), Ammo);
+
 	if (bHUDValid)
 	{
 		FString CarriedAmmoText = FString::Printf(TEXT("%d"), Ammo);

@@ -44,6 +44,7 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
 	void HandleReload();
+	int32 AmountToReload();
 private:
 	class ABlasterCharacter* Character;
 	class ABlasterPlayerController* Controller;
@@ -72,7 +73,7 @@ private:
 
 	// Field of view when not aiming; set to the camera's base FOV in BeginPlay
 	float DefaultFOV;
-
+	
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ZoomedFOV = 30.f;
 
@@ -114,7 +115,7 @@ private:
 	UFUNCTION()
 	void OnRep_CombatState();
 
-	
+	void UpdateAmmoValues();
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

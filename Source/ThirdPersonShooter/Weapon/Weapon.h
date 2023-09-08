@@ -122,6 +122,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	EWeaponType WeaponType;
 public:	
+	void AddAmmo(int32 AmmoToAdd);
 	void SetWeaponState(EWeaponState State);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -135,5 +136,6 @@ public:
 	bool IsEmpty();
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
-
+	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 };

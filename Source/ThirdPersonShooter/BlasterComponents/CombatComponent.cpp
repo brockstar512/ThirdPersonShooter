@@ -93,7 +93,7 @@ bool UCombatComponent::CanFire()
 {
 	if(EquippedWeapon == nullptr) return false;
 
-	return !EquippedWeapon ->IsEmpty() || !bCanFire;
+	return !EquippedWeapon ->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 
 }
 
@@ -203,6 +203,13 @@ void UCombatComponent::FinishReloading()
 	if(Character->HasAuthority())
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
+		UpdateAmmoValues();
+		UE_LOG(LogTemp, Warning, TEXT("updated ammo values!"));
+
+	}
+	if(bFireButtonPressed)
+	{
+		Fire();
 	}
 }
 
@@ -211,11 +218,31 @@ void UCombatComponent::HandleReload()
     Character->PlayReloadMontage();
 }
 
+int32 UCombatComponent::AmountToReload()
+{
+	if(EquippedWeapon == nullptr)
+	{
+		return 0;
+	}
+	//how empty is our mag
+	int32 RoomInMag = EquippedWeapon->GetMagCapacity() - EquippedWeapon->GetAmmo();
+	if(CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		//how much do I have in my reserve
+		int32 AmountCarried  = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		//get what I can... if I dont have enough ammo to fill the emptiness take that if I have enough in the reserve take enough to just fill the emptiness
+		int32 Least = FMath::Min(RoomInMag,AmountCarried);
+		return FMath::Clamp(RoomInMag,0,Least);
+	}
+    return 0;
+}
+
 void UCombatComponent::ServerReload_Implementation()
 {
-	if(Character == nullptr)
+	if(Character == nullptr || EquippedWeapon == nullptr)
 	return;
 	
+
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();//this only runs on the server... but then the combate state changes OnRep_CombatState will run on the client
 }
@@ -227,7 +254,35 @@ void UCombatComponent::OnRep_CombatState()
 		case ECombatState::ECS_Reloading:
 		HandleReload();///this runs on the client
 		break;
+		case ECombatState::ECS_Unoccupied:
+		if(bFireButtonPressed)
+		{
+			Fire();
+		}	
+		break;
 	}
+}
+
+void UCombatComponent::UpdateAmmoValues()
+{
+	if (Character == nullptr || Character->Controller == nullptr) return;
+
+	int32 ReloadAmount = AmountToReload();
+
+	if(CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+
+	}
+	
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+	}
+	
+	EquippedWeapon->AddAmmo(-ReloadAmount);
 }
 
 void UCombatComponent::SetAiming(bool bIsAiming)
@@ -287,7 +342,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 {
 	if(EquippedWeapon == nullptr) return;
 	//checking if this role has a gun and character then fireing
-	if (Character)
+	if (Character && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		Character->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
