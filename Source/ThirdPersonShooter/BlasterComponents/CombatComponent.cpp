@@ -14,6 +14,7 @@
 // #include "ThirdPersonShooter/HUD/BlasterHUD.h"//we do not need this here now because we included it now in the header
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
+#include "Sound/SoundCue.h"
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
@@ -86,6 +87,10 @@ void UCombatComponent::FireTimerFinished()
 	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
 	{
 		Fire();
+	}
+	if (EquippedWeapon->IsEmpty())
+	{
+		Reload();
 	}
 }
 
@@ -184,6 +189,20 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 	}
 	// EquippedWeapon->ShowPickupWidget(false);
 	// EquippedWeapon->GetAreaSphere()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if(EquippedWeapon->EquipSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			EquippedWeapon->EquipSound,
+			Character->GetActorLocation()
+		);
+	}
+	if (EquippedWeapon->IsEmpty())
+	{
+		Reload();
+	}
+	
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
 }
@@ -204,13 +223,14 @@ void UCombatComponent::FinishReloading()
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
 		UpdateAmmoValues();
-		UE_LOG(LogTemp, Warning, TEXT("updated ammo values!"));
+		// UE_LOG(LogTemp, Warning, TEXT("updated ammo values!"));
 
 	}
 	if(bFireButtonPressed)
 	{
 		Fire();
 	}
+
 }
 
 void UCombatComponent::HandleReload()
@@ -281,7 +301,7 @@ void UCombatComponent::UpdateAmmoValues()
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
-	
+
 	EquippedWeapon->AddAmmo(-ReloadAmount);
 }
 
@@ -324,6 +344,14 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		if (HandSocket)
 		{
 			HandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+		}
+			if(EquippedWeapon->EquipSound)
+		{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			EquippedWeapon->EquipSound,
+			Character->GetActorLocation()
+			);
 		}
 		
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;

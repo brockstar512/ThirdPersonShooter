@@ -61,6 +61,9 @@ UPROPERTY(EditAnywhere, Category= Crosshairs)
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
 	int32 Ammo;
 
+	UPROPERTY(EditAnywhere)
+ 	class USoundCue* EquipSound;
+	
 	UFUNCTION()
 	void OnRep_Ammo();
 
