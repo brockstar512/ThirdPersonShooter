@@ -8,12 +8,39 @@
 #include "Components/TextBlock.h"
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
 
+float ABlasterPlayerController::GetServerTime()
+{
+	if(HasAuthority()) return GetWorld()->GetTimeSeconds();
+	else return  GetWorld()->GetTimeSeconds() + ClientServerDelta;
+}
+
 void ABlasterPlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
     BlasterHUD = Cast<ABlasterHUD>(GetHUD());
 }
+
+
+void ABlasterPlayerController::ReceivedPlayer()
+{
+	Super::ReceivedPlayer();
+
+	if(IsLocalController())
+	{
+		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+	}
+}
+
+void ABlasterPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	SetHUDTime();
+	CheckTimeSync(DeltaTime);
+	
+}
+
 
 void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -80,6 +107,21 @@ void ABlasterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	}
 }
 
+void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	bool bHUDValid = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->MatchCountDownText;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		BlasterHUD->CharacterOverlay->MatchCountDownText->SetText(FText::FromString(CountdownText));
+	}
+}
 
 
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
@@ -90,4 +132,44 @@ void ABlasterPlayerController::OnPossess(APawn* InPawn)
 	{
 		SetHUDHealth(BlasterCharacter->GetHealth(), BlasterCharacter->GetMaxHealth());
 	}
+}
+
+void ABlasterPlayerController::SetHUDTime()
+{
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	if (CountdownInt != SecondsLeft)
+	{
+		//SetHUDMatchCountdown(MatchTime - GetWorld()->GetTimeSeconds());
+		SetHUDMatchCountdown(MatchTime - GetServerTime());
+	}
+
+	CountdownInt = SecondsLeft;
+}
+
+void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
+{
+	TimeSyncRunningTime +=DeltaTime;
+	if(IsLocalPlayerController() && TimeSyncRunningTime > TimeSyncFrequency)
+	{
+		
+		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+		TimeSyncRunningTime =0.f;
+	}
+}
+
+void ABlasterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimeOfServerRecieved)
+{
+	//calculate roundtrip time
+	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
+	//round trip time is time of there and back again... current server time is the time the server recieved 
+	//the messeage and the half the round trip time projected into the future
+	float CurrentServerTime = TimeOfServerRecieved + (0.5f * RoundTripTime);
+	//the difference between time of client and server time
+	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+}
+
+void ABlasterPlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
+{
+	float ServerTimeOfReciept = GetWorld()->GetTimeSeconds();
+	ClientReportServerTime(TimeOfClientRequest,ServerTimeOfReciept);
 }
