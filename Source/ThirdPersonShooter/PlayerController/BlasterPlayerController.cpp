@@ -7,6 +7,8 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
+#include "Net/UnrealNetwork.h"
+#include "ThirdPersonShooter/GameMode/BlasterGameMode.h"
 
 float ABlasterPlayerController::GetServerTime()
 {
@@ -19,6 +21,11 @@ void ABlasterPlayerController::BeginPlay()
     Super::BeginPlay();
 
     BlasterHUD = Cast<ABlasterHUD>(GetHUD());
+}
+void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABlasterPlayerController,MatchState);
 }
 
 
@@ -38,8 +45,13 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
+	PollInit();
 	
 }
+
+
+
+
 
 
 void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
@@ -52,7 +64,15 @@ void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
         BlasterHUD->CharacterOverlay->HealthBar->SetPercent(HealthPercent);
         FString HealthText = FString::Printf(TEXT("%d/%d"),FMath::CeilToInt(Health),FMath::CeilToInt(MaxHealth));
         BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
-    }    
+    }   
+	else 
+	{
+		bInitializeCharacterOverlay = true;
+
+		//cache these values until we get the overlay
+		HUDHealth = Health;
+		HUDMaxHealth = MaxHealth;
+	}
 }
 
 void ABlasterPlayerController::SetHUDScore(float Score)
@@ -63,7 +83,11 @@ void ABlasterPlayerController::SetHUDScore(float Score)
     {
         FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
         BlasterHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
-    }  
+	}
+	else {
+		bInitializeCharacterOverlay = true;
+		HUDScore = Score;
+	}
 }
 void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 {
@@ -75,6 +99,10 @@ void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 	{
 		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
 		BlasterHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
+	}
+	else {
+		bInitializeCharacterOverlay = true;
+		HUDDefeats = Defeats;
 	}
 }
 
@@ -98,7 +126,7 @@ void ABlasterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	bool bHUDValid = BlasterHUD &&
 		BlasterHUD->CharacterOverlay &&
 		BlasterHUD->CharacterOverlay->CarriedAmmoAmount;
-        UE_LOG(LogTemp, Warning, TEXT("updated carried ammo! %d"), Ammo);
+        //UE_LOG(LogTemp, Warning, TEXT("updated carried ammo! %d"), Ammo);
 
 	if (bHUDValid)
 	{
@@ -146,6 +174,25 @@ void ABlasterPlayerController::SetHUDTime()
 	CountdownInt = SecondsLeft;
 }
 
+void ABlasterPlayerController::PollInit()
+{
+	if (CharacterOverlay == nullptr)
+	{
+		if (BlasterHUD && BlasterHUD->CharacterOverlay)
+		{
+			CharacterOverlay = BlasterHUD->CharacterOverlay;
+			if (CharacterOverlay)
+			{
+				SetHUDHealth(HUDHealth,HUDMaxHealth);
+				SetHUDScore(HUDScore);
+				SetHUDDefeats(HUDDefeats);
+			}
+		}
+	}
+}
+
+
+
 void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
 {
 	TimeSyncRunningTime +=DeltaTime;
@@ -156,6 +203,8 @@ void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
 		TimeSyncRunningTime =0.f;
 	}
 }
+
+
 
 void ABlasterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimeOfServerRecieved)
 {
@@ -172,4 +221,48 @@ void ABlasterPlayerController::ServerRequestServerTime_Implementation(float Time
 {
 	float ServerTimeOfReciept = GetWorld()->GetTimeSeconds();
 	ClientReportServerTime(TimeOfClientRequest,ServerTimeOfReciept);
+}
+
+void ABlasterPlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
+	{
+		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+		if (BlasterHUD)
+		{
+			BlasterHUD->AddCharacterOverlay();
+		}
+
+	}
+}
+
+//this will be called by the server when the variable changes
+void ABlasterPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+		if (BlasterHUD)
+		{
+			BlasterHUD->AddCharacterOverlay();
+		}
+		/*
+		* the server changes the variable... when the variable changes the client function OnRepMatchState is called
+		* 
+		* telling server to register this variable
+		*DOREPLIFETIME(ABlasterPlayerController,MatchState); 
+		* 
+		* the server changes the variable... then this is saying run this function when the variable is replicated
+		*UPROPERTY(ReplactedUsing =  OnRep_MatchState);
+		*FName MatchState;
+		
+		*function to run
+		*UFUNCTION();
+		*void OnRep_MatchState();
+		*/
+
+	}
+
 }

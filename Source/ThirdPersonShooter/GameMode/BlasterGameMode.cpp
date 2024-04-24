@@ -8,6 +8,50 @@
 #include "GameFramework/PlayerStart.h"
 #include "ThirdPersonShooter/PlayerState/BlasterPlayerState.h"
 
+
+ABlasterGameMode::ABlasterGameMode()
+{
+	bDelayedStart = true;
+}
+
+void ABlasterGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+void ABlasterGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+	//looping through all the players on the server and changing their match state
+	for (FConstPlayerControllerIterator it = GetWorld()->GetPlayerControllerIterator(); it; ++it)
+	{
+		ABlasterPlayerController* BlasterPlayer = Cast<ABlasterPlayerController>(*it);
+		if (BlasterPlayer)
+		{
+			//we are setting a replicated variable that the server notify the local player to change the variable
+			BlasterPlayer->OnMatchStateSet(MatchState);
+		}
+	}
+
+}
+
+void ABlasterGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.f)
+		{
+			StartMatch();
+			//UE_LOG(LogTemp, Warning, TEXT("updated carried ammo! %d"), Ammo);
+		}
+	}
+}
+
 void ABlasterGameMode::PlayerEliminated(class ABlasterCharacter* ElimmedCharacter, class ABlasterPlayerController* VictimController,class ABlasterPlayerController* AttackerController)
 {
 	if (AttackerController == nullptr || AttackerController->PlayerState == nullptr) return;
