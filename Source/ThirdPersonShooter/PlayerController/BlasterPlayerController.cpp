@@ -9,6 +9,9 @@
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "ThirdPersonShooter/GameMode/BlasterGameMode.h"
+#include "ThirdPersonShooter/HUD/Announcement.h"
+#include "Kismet/GameplayStatics.h"
+
 
 float ABlasterPlayerController::GetServerTime()
 {
@@ -19,8 +22,11 @@ float ABlasterPlayerController::GetServerTime()
 void ABlasterPlayerController::BeginPlay()
 {
     Super::BeginPlay();
-
+	
     BlasterHUD = Cast<ABlasterHUD>(GetHUD());
+
+	ServerCheckMatchState();
+
 }
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -48,9 +54,6 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 	PollInit();
 	
 }
-
-
-
 
 
 
@@ -151,6 +154,22 @@ void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 	}
 }
 
+void ABlasterPlayerController::SetHUDAnnouncementCountdown(float time)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	bool bHUDValid = BlasterHUD &&
+		BlasterHUD->Announcement &&
+		BlasterHUD->Announcement->WarmUpTime;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(time / 60.f);
+		int32 Seconds = time - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		BlasterHUD->Announcement->WarmUpTime->SetText(FText::FromString(CountdownText));
+	}
+}
+
 
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
 {
@@ -164,11 +183,29 @@ void ABlasterPlayerController::OnPossess(APawn* InPawn)
 
 void ABlasterPlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	float TimeLeft = 0.f;
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		TimeLeft = WarmUpTime - GetServerTime() + LevelStartingTime;
+	}
+	else if (MatchState == MatchState::InProgress)
+	{
+		TimeLeft = WarmUpTime + MatchTime -  GetServerTime() + LevelStartingTime;
+	}
+
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (CountdownInt != SecondsLeft)
 	{
 		//SetHUDMatchCountdown(MatchTime - GetWorld()->GetTimeSeconds());
-		SetHUDMatchCountdown(MatchTime - GetServerTime());
+		//SetHUDMatchCountdown(MatchTime - GetServerTime());
+		if (MatchState == MatchState::WaitingToStart)
+		{
+			SetHUDAnnouncementCountdown(TimeLeft);
+		}
+		if (MatchState == MatchState::InProgress)
+		{
+			SetHUDMatchCountdown(TimeLeft);
+		}
 	}
 
 	CountdownInt = SecondsLeft;
@@ -205,35 +242,15 @@ void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
 }
 
 
-
-void ABlasterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimeOfServerRecieved)
-{
-	//calculate roundtrip time
-	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
-	//round trip time is time of there and back again... current server time is the time the server recieved 
-	//the messeage and the half the round trip time projected into the future
-	float CurrentServerTime = TimeOfServerRecieved + (0.5f * RoundTripTime);
-	//the difference between time of client and server time
-	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
-}
-
-void ABlasterPlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
-{
-	float ServerTimeOfReciept = GetWorld()->GetTimeSeconds();
-	ClientReportServerTime(TimeOfClientRequest,ServerTimeOfReciept);
-}
-
 void ABlasterPlayerController::OnMatchStateSet(FName State)
 {
 	MatchState = State;
 
+
 	if (MatchState == MatchState::InProgress)
 	{
-		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
-		if (BlasterHUD)
-		{
-			BlasterHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
+		
 
 	}
 }
@@ -241,13 +258,10 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 //this will be called by the server when the variable changes
 void ABlasterPlayerController::OnRep_MatchState()
 {
+
 	if (MatchState == MatchState::InProgress)
 	{
-		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
-		if (BlasterHUD)
-		{
-			BlasterHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
 		/*
 		* the server changes the variable... when the variable changes the client function OnRepMatchState is called
 		* 
@@ -265,4 +279,71 @@ void ABlasterPlayerController::OnRep_MatchState()
 
 	}
 
+}
+
+
+void ABlasterPlayerController::HandleMatchHasStarted()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD)
+	{
+		BlasterHUD->AddCharacterOverlay();
+		if (BlasterHUD->Announcement)
+		{
+			BlasterHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void ABlasterPlayerController::ServerCheckMatchState_Implementation()
+{
+	ABlasterGameMode* GameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+
+	if (GameMode)
+	{
+		 MatchTime = GameMode->MatchTime;
+		 WarmUpTime = GameMode->WarmupTime;
+		 LevelStartingTime = GameMode->LevelStartingTime;
+		 MatchState = GameMode->GetMatchState();
+
+		 ClientJoinMidgame_Implementation(MatchState, WarmUpTime, MatchTime, LevelStartingTime);
+
+		 
+		 if (BlasterHUD && MatchState==MatchState::WaitingToStart)
+		 {
+			 BlasterHUD->AddAnnouncement();
+		 }
+	}
+}
+void ABlasterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimeOfServerRecieved)
+{
+	//calculate roundtrip time
+	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
+	//round trip time is time of there and back again... current server time is the time the server recieved 
+	//the messeage and the half the round trip time projected into the future
+	float CurrentServerTime = TimeOfServerRecieved + (0.5f * RoundTripTime);
+	//the difference between time of client and server time
+	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+}
+
+void ABlasterPlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
+{
+	float ServerTimeOfReciept = GetWorld()->GetTimeSeconds();
+	ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReciept);
+}
+
+void ABlasterPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float WarmUp, float Match, float StartingTime)
+{
+	 LevelStartingTime = StartingTime;
+	 MatchTime = Match;
+	 WarmUpTime = WarmUp;
+	 MatchState = StateOfMatch;
+	 OnMatchStateSet(MatchState);
+
+
+	 if (BlasterHUD && MatchState == MatchState::WaitingToStart)
+	 {
+		 BlasterHUD->AddAnnouncement();
+	 }
+	
 }

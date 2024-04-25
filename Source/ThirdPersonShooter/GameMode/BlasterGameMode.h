@@ -22,6 +22,8 @@ virtual void RequestRespawn(class ACharacter* ElimmedCharacter, AController* Eli
 //edittable from the blueprints
 UPROPERTY(EditDefaultsOnly)
 float WarmupTime = 10.f;
+UPROPERTY(EditDefaultsOnly)
+float MatchTime = 120.f;
 
 float LevelStartingTime = 0.f;
 

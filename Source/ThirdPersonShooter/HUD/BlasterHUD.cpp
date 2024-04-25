@@ -4,12 +4,27 @@
 #include "BlasterHUD.h"
 #include "GameFramework/PlayerController.h"
 #include "CharacterOverlay.h"
+#include "Announcement.h"
 void ABlasterHUD::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 	
 }
+void ABlasterHUD::AddAnnouncement()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
 
+						//does our player exist and the subclass widget model
+	if (PlayerController && AnnouncementClass)
+	{
+		//cache the class after we create the widget and parent it to the owner and the model
+		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
+		//add it to our screen
+		Announcement->AddToViewport();
+	}
+}
 void ABlasterHUD::AddCharacterOverlay()
 {
 	APlayerController* PlayerController =GetOwningPlayerController();
@@ -66,6 +81,9 @@ void ABlasterHUD::DrawHUD()
 		}
 	}
 } 
+
+
+
 void ABlasterHUD::DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread,FLinearColor CrosshairsColor)
 {
 	const float TextureWidth = Texture->GetSizeX();

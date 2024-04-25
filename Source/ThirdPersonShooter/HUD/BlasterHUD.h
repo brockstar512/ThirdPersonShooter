@@ -32,8 +32,14 @@ public:
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;//this will let us create the widget in the blueprint
 	UPROPERTY();
 	class UCharacterOverlay* CharacterOverlay;
-	
 	void AddCharacterOverlay();
+
+	UPROPERTY(EditAnywhere, Category = "Announcement")//this is going to be a generic type as long as it inheretis from userwudget
+	TSubclassOf<class UUserWidget> AnnouncementClass;//this will let us hold a reference to te widget
+	UPROPERTY();
+	class UAnnouncement* Announcement;
+	
+	void AddAnnouncement();
 private:
 	FHUDPackage HUDPackage;
 	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread,FLinearColor CrosshairsColor);

@@ -268,6 +268,7 @@ void ABlasterCharacter::PlayHitReactMontage()
 
 }
 
+
 void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatorController, AActor * DamageCauser)
 {
 	//this will call on rep health... the replicated function will take care of playing the montage on the client
@@ -736,6 +737,8 @@ void ABlasterCharacter::PollInit()
 		}
 	}
 }
+
+
 
 void ABlasterCharacter::Destroyed()
 {
