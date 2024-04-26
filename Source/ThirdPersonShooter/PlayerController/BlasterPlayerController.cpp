@@ -246,7 +246,26 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 		HandleMatchHasStarted();
 		
 
+	}else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCoolDown();
+
 	}
+}
+
+void ABlasterPlayerController::HandleCoolDown()
+{
+	//hide character overlay and show anncoument widget
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD)
+	{
+		BlasterHUD->CharacterOverlay->RemoveFromParent();
+		if (BlasterHUD->Announcement)
+		{
+			BlasterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
 }
 
 //this will be called by the server when the variable changes
@@ -270,6 +289,11 @@ void ABlasterPlayerController::OnRep_MatchState()
 		*UFUNCTION();
 		*void OnRep_MatchState();
 		*/
+
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCoolDown();
 
 	}
 

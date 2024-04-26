@@ -8,6 +8,10 @@
 #include "GameFramework/PlayerStart.h"
 #include "ThirdPersonShooter/PlayerState/BlasterPlayerState.h"
 
+namespace MatchState 
+{
+	const FName Cooldown = FName("Cooldown");
+}
 
 ABlasterGameMode::ABlasterGameMode()
 {
@@ -49,6 +53,16 @@ void ABlasterGameMode::Tick(float DeltaTime)
 			StartMatch();
 			//UE_LOG(LogTemp, Warning, TEXT("updated carried ammo! %d"), Ammo);
 		}
+	}
+	else if (MatchState == MatchState::InProgress)
+	{
+		//get cool down time
+		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.f)
+		{
+			SetMatchState(MatchState::Cooldown);
+		}
+
 	}
 }
 
