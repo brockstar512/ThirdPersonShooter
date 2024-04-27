@@ -163,7 +163,6 @@ void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 void ABlasterPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 {
 	if (MatchState == MatchState::Cooldown) {
-		UE_LOG(LogTemp, Warning, TEXT("Hello1,%f"), CountdownTime);
 	}
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 	bool bHUDValid = BlasterHUD &&
@@ -173,22 +172,17 @@ void ABlasterPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 	{
 		if (CountdownTime < 0.f)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Hello2a,%f"), CountdownTime);
 
 			BlasterHUD->Announcement->WarmUpTime->SetText(FText());
 			return;
 		}
-		if (MatchState == MatchState::Cooldown) {
-			UE_LOG(LogTemp, Warning, TEXT("Hello2,%f"), CountdownTime);
-		}
+
 
 		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
 		int32 Seconds = CountdownTime - Minutes * 60;
 
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
-		if (MatchState == MatchState::Cooldown) {
-			UE_LOG(LogTemp, Warning, TEXT("Hello 3,%f"), CountdownTime);
-		}
+
 
 		BlasterHUD->Announcement->WarmUpTime->SetText(FText::FromString(CountdownText));
 	}
@@ -211,23 +205,11 @@ void ABlasterPlayerController::SetHUDTime()
 	else if (MatchState == MatchState::InProgress) TimeLeft = WarmUpTime + MatchTime - GetServerTime() + LevelStartingTime;
 	else if (MatchState == MatchState::Cooldown) TimeLeft = CoolDownTime + WarmUpTime + MatchTime - GetServerTime() + LevelStartingTime;
 
-	//UE_LOG(LogTemp, Warning, TEXT("cooldown1 : , %d"), CoolDownTime);
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
-
-	if (HasAuthority())
-	{
-		BlasterGameMode = BlasterGameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : BlasterGameMode;
-		if (BlasterGameMode)
-		{
-			SecondsLeft = FMath::CeilToInt(BlasterGameMode->GetCountdownTime() + LevelStartingTime);
-		}
-	}
 	if (CountdownInt != SecondsLeft)
 	{
 		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("cooldown 2: , %d"), CoolDownTime);
-
 			SetHUDAnnouncementCountdown(TimeLeft);
 		}
 		if (MatchState == MatchState::InProgress)
@@ -358,8 +340,6 @@ void ABlasterPlayerController::ServerCheckMatchState_Implementation()
 		LevelStartingTime = GameMode->LevelStartingTime;
 		MatchState = GameMode->GetMatchState();
 		CoolDownTime = GameMode->CooldownTime;
-		UE_LOG(LogTemp, Warning, TEXT("COOLDOWN: , %f"), CoolDownTime);
-		UE_LOG(LogTemp, Warning, TEXT("COOLDOWN 2: , %f"), GameMode->CooldownTime);
 
 		ClientJoinMidgame(MatchState, WarmUpTime, MatchTime, LevelStartingTime,CoolDownTime);
 	}
@@ -389,7 +369,6 @@ void ABlasterPlayerController::ClientJoinMidgame_Implementation(FName StateOfMat
 	LevelStartingTime = StartingTime;
 	MatchState = StateOfMatch;
 	CoolDownTime = CooldownTime;
-	UE_LOG(LogTemp, Warning, TEXT("COOLDOWN 3: , %f"), CoolDownTime);
 
 	OnMatchStateSet(MatchState);
 	if (BlasterHUD && MatchState == MatchState::WaitingToStart)
