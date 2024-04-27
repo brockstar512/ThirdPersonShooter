@@ -49,14 +49,17 @@ protected:
 	float TimeSyncRunningTime = 0;
 	void CheckTimeSync(float DeltaTime);
 	UFUNCTION(Server,Reliable)
-	void ClientJoinMidgame(FName StateOfMatch, float WarmUp, float Match, float StartingTim);
+	void ClientJoinMidgame(FName StateOfMatch, float WarmUp, float Match, float StartingTime, float CooldownTime);
 private:
     UPROPERTY()
 	class ABlasterHUD* BlasterHUD;
 	float LevelStartingTime = 0;
 	float MatchTime = 0.0f;
 	float WarmUpTime = 0.f;
+	float CoolDownTime = 0.f;
 	uint32 CountdownInt = 0;
+	UPROPERTY()
+	class ABlasterGameMode* BlasterGameMode;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 	FName MatchState;

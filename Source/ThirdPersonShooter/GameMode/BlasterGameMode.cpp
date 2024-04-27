@@ -45,6 +45,9 @@ void ABlasterGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//UE_LOG(LogTemp, Warning, TEXT("COOLDOWN: , %d"), CoolDownTime);
+	// FString::Printf(TEXT("Some variable values: x = %f"), CooldownTime);
+	//UE_LOG(LogTemp, Warning, TEXT("Hello,%f")CooldownTime);
 	if (MatchState == MatchState::WaitingToStart)
 	{
 		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;

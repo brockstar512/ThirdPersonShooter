@@ -33,13 +33,14 @@ UPROPERTY(EditDefaultsOnly)
 float MatchTime = 120.f;
 
 float LevelStartingTime = 0.f;
-
+FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;
 
 private:
 	float CountdownTime = 0.f;
+	
 
 
 };

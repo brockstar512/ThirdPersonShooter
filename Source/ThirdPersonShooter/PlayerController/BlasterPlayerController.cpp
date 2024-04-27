@@ -28,12 +28,12 @@ void ABlasterPlayerController::BeginPlay()
 	ServerCheckMatchState();
 
 }
+
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABlasterPlayerController,MatchState);
 }
-
 
 void ABlasterPlayerController::ReceivedPlayer()
 {
@@ -54,8 +54,6 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 	PollInit();
 	
 }
-
-
 
 void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -94,6 +92,7 @@ void ABlasterPlayerController::SetHUDScore(float Score)
 		HUDScore = Score;
 	}
 }
+
 void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 {
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
@@ -148,6 +147,11 @@ void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 		BlasterHUD->CharacterOverlay->MatchCountDownText;
 	if (bHUDValid)
 	{
+		if (CountdownTime < 0.f) 
+		{
+			BlasterHUD->CharacterOverlay->MatchCountDownText->SetText(FText());
+			return;
+		}
 		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
 		int32 Seconds = CountdownTime - Minutes * 60;
 
@@ -158,20 +162,37 @@ void ABlasterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 
 void ABlasterPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 {
+	if (MatchState == MatchState::Cooldown) {
+		UE_LOG(LogTemp, Warning, TEXT("Hello1,%f"), CountdownTime);
+	}
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 	bool bHUDValid = BlasterHUD &&
 		BlasterHUD->Announcement &&
 		BlasterHUD->Announcement->WarmUpTime;
 	if (bHUDValid)
 	{
+		if (CountdownTime < 0.f)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Hello2a,%f"), CountdownTime);
+
+			BlasterHUD->Announcement->WarmUpTime->SetText(FText());
+			return;
+		}
+		if (MatchState == MatchState::Cooldown) {
+			UE_LOG(LogTemp, Warning, TEXT("Hello2,%f"), CountdownTime);
+		}
+
 		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
 		int32 Seconds = CountdownTime - Minutes * 60;
 
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		if (MatchState == MatchState::Cooldown) {
+			UE_LOG(LogTemp, Warning, TEXT("Hello 3,%f"), CountdownTime);
+		}
+
 		BlasterHUD->Announcement->WarmUpTime->SetText(FText::FromString(CountdownText));
 	}
 }
-
 
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
 {
@@ -188,12 +209,25 @@ void ABlasterPlayerController::SetHUDTime()
 	float TimeLeft = 0.f;
 	if (MatchState == MatchState::WaitingToStart) TimeLeft = WarmUpTime - GetServerTime() + LevelStartingTime;
 	else if (MatchState == MatchState::InProgress) TimeLeft = WarmUpTime + MatchTime - GetServerTime() + LevelStartingTime;
+	else if (MatchState == MatchState::Cooldown) TimeLeft = CoolDownTime + WarmUpTime + MatchTime - GetServerTime() + LevelStartingTime;
 
+	//UE_LOG(LogTemp, Warning, TEXT("cooldown1 : , %d"), CoolDownTime);
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
+
+	if (HasAuthority())
+	{
+		BlasterGameMode = BlasterGameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : BlasterGameMode;
+		if (BlasterGameMode)
+		{
+			SecondsLeft = FMath::CeilToInt(BlasterGameMode->GetCountdownTime() + LevelStartingTime);
+		}
+	}
 	if (CountdownInt != SecondsLeft)
 	{
-		if (MatchState == MatchState::WaitingToStart)
+		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
 		{
+			//UE_LOG(LogTemp, Warning, TEXT("cooldown 2: , %d"), CoolDownTime);
+
 			SetHUDAnnouncementCountdown(TimeLeft);
 		}
 		if (MatchState == MatchState::InProgress)
@@ -222,8 +256,6 @@ void ABlasterPlayerController::PollInit()
 	}
 }
 
-
-
 void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
 {
 	TimeSyncRunningTime +=DeltaTime;
@@ -234,7 +266,6 @@ void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
 		TimeSyncRunningTime =0.f;
 	}
 }
-
 
 void ABlasterPlayerController::OnMatchStateSet(FName State)
 {
@@ -260,9 +291,13 @@ void ABlasterPlayerController::HandleCoolDown()
 	if (BlasterHUD)
 	{
 		BlasterHUD->CharacterOverlay->RemoveFromParent();
-		if (BlasterHUD->Announcement)
+		bool bHUDValid = BlasterHUD->Announcement && BlasterHUD->Announcement->AnnouncementText && BlasterHUD->Announcement->InfoText;
+		if (bHUDValid)
 		{
 			BlasterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
+			FString AnnouncementText("New Match Starts In:");
+			BlasterHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
+			BlasterHUD->Announcement->InfoText->SetText(FText());
 		}
 	}
 
@@ -322,7 +357,11 @@ void ABlasterPlayerController::ServerCheckMatchState_Implementation()
 		MatchTime = GameMode->MatchTime;
 		LevelStartingTime = GameMode->LevelStartingTime;
 		MatchState = GameMode->GetMatchState();
-		ClientJoinMidgame(MatchState, WarmUpTime, MatchTime, LevelStartingTime);
+		CoolDownTime = GameMode->CooldownTime;
+		UE_LOG(LogTemp, Warning, TEXT("COOLDOWN: , %f"), CoolDownTime);
+		UE_LOG(LogTemp, Warning, TEXT("COOLDOWN 2: , %f"), GameMode->CooldownTime);
+
+		ClientJoinMidgame(MatchState, WarmUpTime, MatchTime, LevelStartingTime,CoolDownTime);
 	}
 }
 
@@ -343,12 +382,15 @@ void ABlasterPlayerController::ServerRequestServerTime_Implementation(float Time
 	ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReciept);
 }
 
-void ABlasterPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+void ABlasterPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime, float CooldownTime)
 {
 	WarmUpTime = Warmup;
 	MatchTime = Match;
 	LevelStartingTime = StartingTime;
 	MatchState = StateOfMatch;
+	CoolDownTime = CooldownTime;
+	UE_LOG(LogTemp, Warning, TEXT("COOLDOWN 3: , %f"), CoolDownTime);
+
 	OnMatchStateSet(MatchState);
 	if (BlasterHUD && MatchState == MatchState::WaitingToStart)
 	{
