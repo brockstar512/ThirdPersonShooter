@@ -22,7 +22,9 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "ThirdPersonShooter/PlayerState/BlasterPlayerState.h"
 #include "ThirdPersonShooter/Weapon/WeaponTypes.h"
-
+/*
+* there are many characters/pawns in your game... these are all here because there will be one active player controller that you are interacting with. the logic that the other players need to do that you need to see but not effect with your own inputs will put placed in this class
+*/
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -62,14 +64,14 @@ ABlasterCharacter::ABlasterCharacter()
 	MinNetUpdateFrequency = 33.f;
 
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
-}
-void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+}void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//replication does not run on the server so we need to hanlde a special case when the server overlaps
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	//register replicted health
 	DOREPLIFETIME(ABlasterCharacter, Health);
+	DOREPLIFETIME(ABlasterCharacter, bDisableGameplay);
 
 }
 
@@ -81,8 +83,6 @@ void ABlasterCharacter::PostInitializeComponents()
 		Combat->Character = this;//passing this ccharacter off to the combat class
 	}
 }
-
-
 
 void ABlasterCharacter::BeginPlay()
 {
@@ -184,10 +184,11 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();//stop movment
 	GetCharacterMovement()->StopMovementImmediately();//stop turn rotation
-	if (BlasterPlayerController)
-	{
-		DisableInput(BlasterPlayerController);//disable fire inputs etc
-	}
+	bDisableGameplay = true;
+	//if (BlasterPlayerController)
+	//{
+	//	DisableInput(BlasterPlayerController);//disable fire inputs etc
+	//}
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -269,6 +270,7 @@ void ABlasterCharacter::PlayHitReactMontage()
 }
 
 
+
 void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatorController, AActor * DamageCauser)
 {
 	//this will call on rep health... the replicated function will take care of playing the montage on the client
@@ -294,10 +296,9 @@ void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const
 	}
 }
 
-
-
 void ABlasterCharacter::Jump()
 {
+	if (bDisableGameplay) return;
 	if(bIsCrouched)
 	{
 		UnCrouch();
@@ -313,7 +314,21 @@ void ABlasterCharacter::Tick(float DeltaTime)
 
 	Super::Tick(DeltaTime);
 
-	if(GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
+	RotateInPlace(DeltaTime);
+	HideCameraIfCharacterClose();
+	PollInit();
+}
+
+void ABlasterCharacter::RotateInPlace(float DeltaTime)
+{
+	if (bDisableGameplay) 
+	{ 
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return; 
+	}
+
+	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
 	{
 		//if you are the server animated how you normally do
 		AimOffset(DeltaTime);
@@ -321,11 +336,11 @@ void ABlasterCharacter::Tick(float DeltaTime)
 	else
 	{
 		//if you are not the server own player. 
-			//handle the replicated movement 
-			//get a reference to the last time we did a net update to replicate the movement
-			TimeSinceLastMovementReplication += DeltaTime;
-			//on rep changes only when we move, so we are creating a timesptamp to make sure we are updating the animattio n
-			//even when we are not activly moving.
+		//handle the replicated movement 
+		//get a reference to the last time we did a net update to replicate the movement
+		TimeSinceLastMovementReplication += DeltaTime;
+		//on rep changes only when we move, so we are creating a timesptamp to make sure we are updating the animattio n
+		//even when we are not activly moving.
 		if (TimeSinceLastMovementReplication > 0.25f)
 		{
 			OnRep_ReplicatedMovement();
@@ -335,8 +350,6 @@ void ABlasterCharacter::Tick(float DeltaTime)
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("tick is running!"));
 
-	HideCameraIfCharacterClose();
-	PollInit();
 }
 
 void ABlasterCharacter::OnRep_ReplicatedMovement()
@@ -479,6 +492,7 @@ ECombatState ABlasterCharacter::GetCombatState() const
 
 void ABlasterCharacter::MoveForward(float Value)
 {
+	if (bDisableGameplay) return;
 	if(Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -489,6 +503,8 @@ void ABlasterCharacter::MoveForward(float Value)
 
 void ABlasterCharacter::MoveRight(float Value)
 {
+	if (bDisableGameplay) return;
+
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
 		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
 		AddMovementInput(Direction, Value);
@@ -506,6 +522,8 @@ void ABlasterCharacter::LookUp(float Value)
 
 void ABlasterCharacter::EquipButtonPressed()
 {
+	if (bDisableGameplay) return;
+
 	if(Combat)
 	{
 		if(HasAuthority())
@@ -521,6 +539,8 @@ void ABlasterCharacter::EquipButtonPressed()
 
 void ABlasterCharacter::CrouchButtonPressed()
 {
+	if (bDisableGameplay) return;
+
 	if(bIsCrouched)
 	{
 		UnCrouch();
@@ -542,6 +562,8 @@ void ABlasterCharacter::CrouchButtonPressed()
 
 void ABlasterCharacter::AimButtonPressed()
 {
+	if (bDisableGameplay) return;
+
 	if(!IsWeaponEquipped()) return;
 	//we are setting the combat component aiming bool in our blaster script
 	if(Combat)
@@ -552,6 +574,8 @@ void ABlasterCharacter::AimButtonPressed()
 
 void ABlasterCharacter::AimButtonReleased()
 {
+	if (bDisableGameplay) return;
+
 	if(Combat)
 	{
 		Combat->SetAiming(false);
@@ -661,6 +685,8 @@ void ABlasterCharacter::CalculateAO_Pitch()
 
 void ABlasterCharacter::FireButtonReleased()
 {
+	if (bDisableGameplay) return;
+
 	// if(GEngine)
 	// {
     // 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("fire button released"));	
@@ -673,6 +699,8 @@ void ABlasterCharacter::FireButtonReleased()
 
 void ABlasterCharacter::FireButtonPressed()
 {	
+	if (bDisableGameplay) return;
+
 	// if(GEngine)
 	// {
     // 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("fire button pressed"));	
@@ -738,8 +766,6 @@ void ABlasterCharacter::PollInit()
 	}
 }
 
-
-
 void ABlasterCharacter::Destroyed()
 {
 	Super::Destroyed();
@@ -748,9 +774,16 @@ void ABlasterCharacter::Destroyed()
 	{
 		ElimBotComponent->DestroyComponent();
 	}
+
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
 }
 void ABlasterCharacter::ReloadButtonPressed()
 {
+	if (bDisableGameplay) return;
+
 	if(Combat)
 	{
 		Combat->Reload();

@@ -11,6 +11,7 @@
 #include "ThirdPersonShooter/GameMode/BlasterGameMode.h"
 #include "ThirdPersonShooter/HUD/Announcement.h"
 #include "Kismet/GameplayStatics.h"
+#include "ThirdPersonShooter/BlasterComponents/CombatComponent.h"
 
 
 float ABlasterPlayerController::GetServerTime()
@@ -281,6 +282,14 @@ void ABlasterPlayerController::HandleCoolDown()
 			BlasterHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			BlasterHUD->Announcement->InfoText->SetText(FText());
 		}
+	}
+
+	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
+	if (BlasterCharacter && BlasterCharacter->GetCombat())
+	{
+		BlasterCharacter->bDisableGameplay = true;
+		BlasterCharacter->GetCombat()->FireButtonPressed(false);
+		
 	}
 
 }

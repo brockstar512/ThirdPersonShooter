@@ -16,6 +16,14 @@ class THIRDPERSONSHOOTER_API ABlasterCharacter : public ACharacter, public IInte
 	GENERATED_BODY()
 
 public:
+	/*
+	* APlayerController vs ACharacter
+	If you want to implement some complex input functionality (for example if there are multiple players on one game client or there is a need to change characters dynamically at runtime), it’s better (and sometimes necessary) to use PlayerController. In this case PlayerController handles input and the issues commands to the Pawn.
+	For example, in deathmatch games Pawn may change during gameplay, but PlayerController usually remains the same.
+	Character class represents player in the game world. It provides functionality for animation, collision, movement and basic networking and input modes. Thus, if your input is not complicated and there is no need to change character dynamically at runtime, Character class is more suitable. For example, you can use it in single player first-person shooter.
+	player cotroller is the interface between the pawn and you controlling the player */
+
+	//blaster character manages the player input 
 	ABlasterCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -48,7 +56,7 @@ protected:
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void PlayHitReactMontage();
-
+	void RotateInPlace(float DeltaTime);
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
@@ -125,23 +133,21 @@ private:
 	UMaterialInstance* DissolveMaterialInstance;
 
 	class ABlasterPlayerController* BlasterPlayerController;
-//getters and setters
-UPROPERTY(EditAnywhere)
-float CameraThreshold = 200.f;
-//when the replicated variable changes the inline function is going to run on the client
-//replication only changes when the variable changes
+	//getters and setters
+	UPROPERTY(EditAnywhere)
+	float CameraThreshold = 200.f;
+	//when the replicated variable changes the inline function is going to run on the client
+	//replication only changes when the variable changes
 
-/**
- * Elim Bot
-*/
-UPROPERTY(EditAnywhere)
-UParticleSystem* ElimBotEffect;
-UPROPERTY(VisibleAnywhere)
-UParticleSystemComponent* ElimBotComponent;
-UPROPERTY(EditAnywhere)
-class USoundCue* ElimBotSound;
-UPROPERTY()
-class ABlasterPlayerState* BlasterPlayerState;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* ElimBotEffect;
+	UPROPERTY(VisibleAnywhere)
+	UParticleSystemComponent* ElimBotComponent;
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ElimBotSound;
+	UPROPERTY()
+	class ABlasterPlayerState* BlasterPlayerState;
 
 public:	
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -160,4 +166,8 @@ public:
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 	ECombatState GetCombatState() const;
+	UPROPERTY(Replicated)
+	bool bDisableGameplay = false;
+	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
+	FORCEINLINE bool GetDisabledGameplay() const { return bDisableGameplay; }
 };
