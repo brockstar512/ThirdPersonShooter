@@ -184,11 +184,12 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();//stop movment
 	GetCharacterMovement()->StopMovementImmediately();//stop turn rotation
+	// Disable character movement
 	bDisableGameplay = true;
-	//if (BlasterPlayerController)
-	//{
-	//	DisableInput(BlasterPlayerController);//disable fire inputs etc
-	//}
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -246,13 +247,27 @@ void ABlasterCharacter::StartDissolve()
 
 void ABlasterCharacter::PlayHitReactMontage()
 {
-			// UE_LOG(LogTemp, Warning, TEXT("Hit react montage start montage"));
+			UE_LOG(LogTemp, Warning, TEXT("Hit react montage start montage"));
 
+			bool isCombat = Combat == nullptr;
+			bool isWeapon = Combat->EquippedWeapon == nullptr;
+			//UE_LOG(LogTemp, Error, TEXT("is combat null ? ", isCombat ? "True" : "False"));
+			//UE_LOG(LogTemp, Error, TEXT("is equip weapon ? ", isWeapoon ? "True" : "False"));
+
+			//if (GEngine)
+			//{
+			//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("isCombat: %s"), isCombat ? TEXT("true") : TEXT("false")));
+			//}
+
+			//if (GEngine)
+			//{
+			//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("isWeapon: %s"), isCombat ? TEXT("true") : TEXT("false")));
+			//}
 
 
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
-			// UE_LOG(LogTemp, Warning, TEXT("Hit react montage second stage"));
+			UE_LOG(LogTemp, Warning, TEXT("Hit react montage second stage"));
 
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -279,6 +294,7 @@ void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const
 	//this wil run on the server
 	UpdateHUDHealth();
 	PlayHitReactMontage();
+	//UE_LOG(LogTemp, Warning, TEXT("char hit here is damage %f"), Damage);
 
 	if(Health == 0.f)
 	{
@@ -747,7 +763,7 @@ void ABlasterCharacter::UpdateHUDHealth()
 	
 	if(BlasterPlayerController)
 	{
-		//UE_LOG(LogTemp,Display,TEXT("HEALTH:: %f"),Health);
+		//UE_LOG(LogTemp,Display,TEXT("HEALTH:: %f"),Health);//this playes onces
 		BlasterPlayerController->SetHUDHealth(Health,MaxHealth);
 	}
 }
@@ -775,7 +791,9 @@ void ABlasterCharacter::Destroyed()
 		ElimBotComponent->DestroyComponent();
 	}
 
-	if (Combat && Combat->EquippedWeapon)
+	ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMatchNotInProgress = BlasterGameMode && BlasterGameMode->GetMatchState() != MatchState::InProgress;
+	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
 	{
 		Combat->EquippedWeapon->Destroy();
 	}

@@ -26,7 +26,6 @@ void ABlasterPlayerState::OnRep_Score()
         if(Controller)
         {
             Controller->SetHUDScore(GetScore());
-            // Controller->SetHUDScore(Score);
         }
     }
 }
@@ -46,7 +45,6 @@ void ABlasterPlayerState::OnRep_Defeats()
 
 void ABlasterPlayerState::AddToScore(float ScoreAmount)
 {
-    //Score += ScoreAmount;
 	SetScore(GetScore()+ ScoreAmount);
     Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character;
 

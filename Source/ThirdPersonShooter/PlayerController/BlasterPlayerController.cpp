@@ -12,6 +12,9 @@
 #include "ThirdPersonShooter/HUD/Announcement.h"
 #include "Kismet/GameplayStatics.h"
 #include "ThirdPersonShooter/BlasterComponents/CombatComponent.h"
+#include "ThirdPersonShooter/GameState/ThirdPersonGameState.h"
+#include "ThirdPersonShooter/PlayerState/BlasterPlayerState.h"
+
 
 
 float ABlasterPlayerController::GetServerTime()
@@ -182,6 +185,14 @@ void ABlasterPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 		BlasterHUD->Announcement->WarmUpTime->SetText(FText::FromString(CountdownText));
 	}
+	//for some reason the client is not showing the text for either game or countdown
+
+		//
+		//if (GEngine && bHUDValid)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("am i valid")));
+		//}
+	
 }
 
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
@@ -283,7 +294,36 @@ void ABlasterPlayerController::HandleCoolDown()
 			BlasterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
 			FString AnnouncementText("New Match Starts In:");
 			BlasterHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
-			BlasterHUD->Announcement->InfoText->SetText(FText());
+
+			AThirdPersonGameState* BlasterGameState = Cast<AThirdPersonGameState>(UGameplayStatics::GetGameState(this));
+			ABlasterPlayerState* BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+			if (BlasterGameState && BlasterPlayerState)
+			{
+				TArray<ABlasterPlayerState*> TopPlayers = BlasterGameState->TopScoringPlayers;
+				FString InfoTextString;
+				if (TopPlayers.Num() == 0)
+				{
+					InfoTextString = FString("There is no winner.");
+				}
+				else if (TopPlayers.Num() == 1 && TopPlayers[0] == BlasterPlayerState)
+				{
+					InfoTextString = FString("You are the winner!");
+				}
+				else if (TopPlayers.Num() == 1)
+				{
+					InfoTextString = FString::Printf(TEXT("Winner: \n%s"), *TopPlayers[0]->GetPlayerName());
+				}
+				else if (TopPlayers.Num() > 1)
+				{
+					InfoTextString = FString("Players tied for the win:\n");
+					for (auto TiedPlayer : TopPlayers)
+					{
+						InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+					}
+				}
+
+				BlasterHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
+			}
 		}
 	}
 	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
@@ -325,7 +365,6 @@ void ABlasterPlayerController::OnRep_MatchState()
 	}
 
 }
-
 
 void ABlasterPlayerController::HandleMatchHasStarted()
 {

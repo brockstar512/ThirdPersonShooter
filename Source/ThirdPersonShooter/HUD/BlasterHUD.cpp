@@ -15,10 +15,7 @@ void ABlasterHUD::BeginPlay()
 void ABlasterHUD::AddAnnouncement()
 {
 	APlayerController* PlayerController = GetOwningPlayerController();
-	//if (GEngine) 
-	//{
-	//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("Some debug message!"));
-	//}
+
 						//does our player exist and the subclass widget model
 	if (PlayerController && AnnouncementClass)
 	{
@@ -26,10 +23,7 @@ void ABlasterHUD::AddAnnouncement()
 		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
 		//add it to our screen
 		Announcement->AddToViewport();
-		//if (GEngine)
-		//{
-		//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, TEXT("Some debug message 2!"));
-		//}
+
 	}
 }
 void ABlasterHUD::AddCharacterOverlay()
