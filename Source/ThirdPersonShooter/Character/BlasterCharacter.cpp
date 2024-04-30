@@ -247,12 +247,14 @@ void ABlasterCharacter::StartDissolve()
 
 void ABlasterCharacter::PlayHitReactMontage()
 {
-			UE_LOG(LogTemp, Warning, TEXT("Hit react montage start montage"));
-
-			bool isCombat = Combat == nullptr;
-			bool isWeapon = Combat->EquippedWeapon == nullptr;
-			//UE_LOG(LogTemp, Error, TEXT("is combat null ? ", isCombat ? "True" : "False"));
-			//UE_LOG(LogTemp, Error, TEXT("is equip weapon ? ", isWeapoon ? "True" : "False"));
+			//UE_LOG(LogTemp, Warning, TEXT("Hit react montage start montage"));
+			// 
+			//plays hit montage only when player has a gun
+			// 
+			//bool isCombat = Combat == nullptr;
+			//bool isWeapon = Combat->EquippedWeapon == nullptr;
+	/*		UE_LOG(LogTemp, Error, TEXT("is combat null ? %s", isCombat ?TEXT("true") : TEXT("false"));
+			UE_LOG(LogTemp, Error, TEXT("is equip weapon ? %s", isWeapoon ? TEXT("true") : TEXT("false"));*/
 
 			//if (GEngine)
 			//{
@@ -267,20 +269,20 @@ void ABlasterCharacter::PlayHitReactMontage()
 
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
-			UE_LOG(LogTemp, Warning, TEXT("Hit react montage second stage"));
+			//UE_LOG(LogTemp, Warning, TEXT("Hit react montage second stage"));
 
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit react montage main stage"));
+		//UE_LOG(LogTemp, Warning, TEXT("Hit react montage main stage"));
 
 	
 		AnimInstance->Montage_Play(HitReactMontage);
 		FName SectionName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
-		UE_LOG(LogTemp, Warning, TEXT("Hit react montage end montage"));
+		//UE_LOG(LogTemp, Warning, TEXT("Hit react montage end montage"));
 
 }
 

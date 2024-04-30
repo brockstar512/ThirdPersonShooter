@@ -36,7 +36,8 @@ void ABlasterPlayerController::BeginPlay()
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ABlasterPlayerController,MatchState);
+
+	DOREPLIFETIME(ABlasterPlayerController, MatchState);
 }
 
 void ABlasterPlayerController::ReceivedPlayer()
@@ -342,21 +343,6 @@ void ABlasterPlayerController::OnRep_MatchState()
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
-		/*
-		* the server changes the variable... when the variable changes the client function OnRepMatchState is called
-		* 
-		* telling server to register this variable
-		*DOREPLIFETIME(ABlasterPlayerController,MatchState); 
-		* 
-		* the server changes the variable... then this is saying run this function when the variable is replicated
-		*UPROPERTY(ReplactedUsing =  OnRep_MatchState);
-		*FName MatchState;
-		
-		*function to run
-		*UFUNCTION();
-		*void OnRep_MatchState();
-		*/
-
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
@@ -394,13 +380,13 @@ void ABlasterPlayerController::ServerCheckMatchState_Implementation()
 	}
 }
 
-void ABlasterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimeOfServerRecieved)
+void ABlasterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimeServerReceivedClientRequest)
 {
 	//calculate roundtrip time
 	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
 	//round trip time is time of there and back again... current server time is the time the server recieved 
 	//the messeage and the half the round trip time projected into the future
-	float CurrentServerTime = TimeOfServerRecieved + (0.5f * RoundTripTime);
+	float CurrentServerTime = TimeServerReceivedClientRequest + (0.5f * RoundTripTime);
 	//the difference between time of client and server time
 	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
 }
@@ -411,13 +397,13 @@ void ABlasterPlayerController::ServerRequestServerTime_Implementation(float Time
 	ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReciept);
 }
 
-void ABlasterPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime, float CooldownTime)
+void ABlasterPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime)
 {
 	WarmUpTime = Warmup;
 	MatchTime = Match;
 	LevelStartingTime = StartingTime;
 	MatchState = StateOfMatch;
-	CoolDownTime = CooldownTime;
+	CoolDownTime = Cooldown;
 
 	OnMatchStateSet(MatchState);
 	if (BlasterHUD && MatchState == MatchState::WaitingToStart)

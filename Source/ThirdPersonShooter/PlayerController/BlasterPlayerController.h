@@ -33,23 +33,23 @@ protected:
 	void SetHUDTime();
 	void PollInit();
 	void HandleMatchHasStarted();
-	UFUNCTION(Server,Reliable)
+	UFUNCTION(Server, Reliable)
 	void ServerCheckMatchState();
 	//sync time between client and server
 	//requests current server time passing in clients time when the request was sent
-	UFUNCTION(Server,Reliable)
+	UFUNCTION(Server, Reliable)
 	void ServerRequestServerTime(float TimeOfClientRequest);
 	//reports the current server tine to the client in response to ServerRequestServerTime
-	UFUNCTION(Client,Reliable)
-	void ClientReportServerTime(float TimeOfClientRequest, float TimeOfServerRecieved);
+	UFUNCTION(Client, Reliable)
+	void ClientReportServerTime(float TimeOfClientRequest, float TimeServerReceivedClientRequest);
 	//difference in client and server time;
 	float ClientServerDelta = 0;
 	UPROPERTY(EditAnywhere, Category = Time)
 	float TimeSyncFrequency = 5.f;
 	float TimeSyncRunningTime = 0;
 	void CheckTimeSync(float DeltaTime);
-	UFUNCTION(Server,Reliable)
-	void ClientJoinMidgame(FName StateOfMatch, float WarmUp, float Match, float StartingTime, float CooldownTime);
+	UFUNCTION(Client, Reliable)
+	void ClientJoinMidgame(FName StateOfMatch, float Warmup, float Match, float Cooldown, float StartingTime);
 private:
     UPROPERTY()
 	class ABlasterHUD* BlasterHUD;
