@@ -182,10 +182,11 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	StartDissolve();
 
 	// Disable character movement
+	bDisableGameplay = true;
+	// Disable character movement
 	GetCharacterMovement()->DisableMovement();//stop movment
 	GetCharacterMovement()->StopMovementImmediately();//stop turn rotation
-	// Disable character movement
-	bDisableGameplay = true;
+
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
@@ -285,8 +286,6 @@ void ABlasterCharacter::PlayHitReactMontage()
 		//UE_LOG(LogTemp, Warning, TEXT("Hit react montage end montage"));
 
 }
-
-
 
 void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatorController, AActor * DamageCauser)
 {
@@ -687,8 +686,6 @@ void ABlasterCharacter::OnRep_Health()
 	PlayHitReactMontage();
 }
 
-
-
 void ABlasterCharacter::CalculateAO_Pitch()
 {
 		AO_Pitch = GetBaseAimRotation().Pitch;
@@ -800,6 +797,7 @@ void ABlasterCharacter::Destroyed()
 		Combat->EquippedWeapon->Destroy();
 	}
 }
+
 void ABlasterCharacter::ReloadButtonPressed()
 {
 	if (bDisableGameplay) return;
