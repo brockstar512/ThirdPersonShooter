@@ -21,6 +21,7 @@ AProjectileRocket::AProjectileRocket()
 
 	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent_"));
 	RocketMovementComponent->bRotationFollowsVelocity = true;
+	RocketMovementComponent->SetIsReplicated(true);
 
 
 }
