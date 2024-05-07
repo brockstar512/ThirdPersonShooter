@@ -10,6 +10,7 @@
 #include "Components/AudioComponent.h"
 #include "NiagaraSystemInstanceController.h"
 #include "NiagaraComponent.h"
+#include "RocketMovementComponent.h"
 
 
 AProjectileRocket::AProjectileRocket()
@@ -17,6 +18,11 @@ AProjectileRocket::AProjectileRocket()
 	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
 	RocketMesh->SetupAttachment(RootComponent);
 	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent_"));
+	RocketMovementComponent->bRotationFollowsVelocity = true;
+
+
 }
 
 
@@ -27,6 +33,7 @@ void AProjectileRocket::BeginPlay()
 
 	if (!HasAuthority())
 	{
+		//run on hit when you hit something
 		CollisionBox->OnComponentHit.AddDynamic(this, &AProjectileRocket::OnHit);
 	}
 
@@ -51,10 +58,19 @@ void AProjectileRocket::DestroyTimerFinished()
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor == GetOwner())
+	{
+		//UE_LOG(LogTemp,Warning,TEXT("Rocket Hit self"));
+		return;
+	}
+
+	//apply radial damage
+	//wht was the pawn who owns the weapon and fired the weapon
 	APawn* FiringPawn = GetInstigator();
 
 	if (FiringPawn && HasAuthority())
 	{
+		//if this was fire by a controller
 		AController* FiringController = FiringPawn->GetController();
 
 		if (FiringController)
@@ -69,13 +85,13 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 				1.f, //Damage Falloff
 				UDamageType::StaticClass(), //Damage Tpe
 				TArray<AActor*>(), //ingore Actors (friendly fire)
-				this, //damage causer
+				this, //damage causer 
 				FiringController //instigatorController
 			);
 		}
 	}
 
-
+	//destroy the effects after x amount of time
 	GetWorldTimerManager().SetTimer(
 		DestroyTimer,
 		this,
