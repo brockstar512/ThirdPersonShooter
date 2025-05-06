@@ -112,6 +112,8 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle,StartingARAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, StartingRocketAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, StartingPistolAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_SubMachineGun, StartingSMGAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, StartingShotgunAmmo);
 
 
 }
@@ -233,6 +235,7 @@ void UCombatComponent::FinishReloading()
 	if(bFireButtonPressed)
 	{
 		Fire();
+
 	}
 
 }
@@ -376,6 +379,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 	//checking if this role has a gun and character then fireing
 	if (Character && CombatState == ECombatState::ECS_Unoccupied)
 	{
+
 		Character->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
 	}
@@ -390,6 +394,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
 
+	//get the center of the viewport
 	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
@@ -405,9 +410,9 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 		//UE_LOG(LogTemp, Warning, TEXT("sending out ray!"));
 
 		FVector Start = CrosshairWorldPosition;
-		//extending ray so it starts ahead of character not the camera
 		if(Character)
 		{
+			//extending ray so it starts ahead of character not the camera
 			float DistanceToCharacter = (Character->GetActorLocation() - Start).Size();
 			//if it a little offest
 			Start+= CrosshairWorldDirection * (DistanceToCharacter + 50.f);
@@ -421,6 +426,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 			// );
 		}
 
+		//end point of our range
 		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
 
 		GetWorld()->LineTraceSingleByChannel(
@@ -430,10 +436,17 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult &TraceHitResult)
 			ECollisionChannel::ECC_Visibility
 		);
 
+		//check if there was no hit
+		/*
+			true = The trace hit something that is set to "Block" for the given collision channel.
+			false = The trace did not hit anything that blocks the trace channel.
+		*/
 		if (!TraceHitResult.bBlockingHit)
 		{
-		TraceHitResult.ImpactPoint = End;
+			//we need the end point somewhere, so draw it to that max distance
+			TraceHitResult.ImpactPoint = End;
 		}
+		//turn the cross hairs red if it was a player
 										//get  the actor and check if it implements the interface
 		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
 		{
@@ -553,6 +566,10 @@ void UCombatComponent::Fire()
 {
 	if (CanFire())
 	{
+		//if (GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("combat component sending to server"));
+		//}
 		//telling the server i clicked fire and which point i was clicking at
 		bCanFire = false;
 		ServerFire(HitTarget);

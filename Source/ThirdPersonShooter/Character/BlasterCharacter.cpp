@@ -80,7 +80,7 @@ void ABlasterCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	if(Combat)
 	{
-		Combat->Character = this;//passing this ccharacter off to the combat class
+		Combat->Character = this;//passing this character off to the combat class
 	}
 }
 
@@ -130,6 +130,12 @@ void ABlasterCharacter::PlayReloadMontage()
 				SectionName = FName("Rifle");
 				break;
 			case EWeaponType::EWT_Pistol:
+				SectionName = FName("Rifle");
+				break;
+			case EWeaponType::EWT_SubMachineGun:
+				SectionName = FName("Rifle");
+				break;
+			case EWeaponType::EWT_Shotgun:
 				SectionName = FName("Rifle");
 				break;
 		}

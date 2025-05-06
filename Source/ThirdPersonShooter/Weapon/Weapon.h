@@ -112,7 +112,7 @@ private:
 
 	UFUNCTION()
 	void OnRep_WeaponState();
-
+	//this seems just like a basic cwidget that we are namign pickup widget
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
 	class UWidgetComponent* PickupWidget;
 	
