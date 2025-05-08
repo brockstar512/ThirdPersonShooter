@@ -39,6 +39,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastElim();
 	virtual void Destroyed() override;
+
+	//this will only run on blue prints. a cpp function body will break compilation.there is a way to run both the C++ implementation and the Blueprint logic
+	// by using the BlueprintNativeEvent macro argumentIf the Blueprint overrides it, the Blueprint version is called instead, not both automatically. But you can explicitly call the C++ version from Blueprint
+	//
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowSniperScopeWidget(bool bShowScope);
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;

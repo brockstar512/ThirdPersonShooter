@@ -26,6 +26,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void OnMatchStateSet(FName State);
 	void HandleCoolDown();
+
 protected:
 	virtual float GetServerTime();
 	virtual void BeginPlay() override;

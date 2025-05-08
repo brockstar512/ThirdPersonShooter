@@ -138,6 +138,9 @@ void ABlasterCharacter::PlayReloadMontage()
 			case EWeaponType::EWT_Shotgun:
 				SectionName = FName("Rifle");
 				break;
+			case EWeaponType::EWT_SniperRifle:
+				SectionName = FName("Rifle");
+				break; 
 		}
 		// UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
 	if (GEngine)
@@ -225,6 +228,11 @@ void ABlasterCharacter::MulticastElim_Implementation()
 			ElimBotSound,
 			GetActorLocation()
 		);
+	}
+	bool bHideSniperScope = Combat && Combat->bAiming && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+	if (IsLocallyControlled() && bHideSniperScope)
+	{
+		ShowSniperScopeWidget(false);
 	}
 }
 
