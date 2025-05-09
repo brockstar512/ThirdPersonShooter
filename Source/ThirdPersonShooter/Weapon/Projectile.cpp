@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystem.h"
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
 #include "ThirdPersonShooter/ThirdPersonShooter.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Sound/SoundCue.h"
 // Sets default values
 AProjectile::AProjectile()
@@ -75,6 +76,23 @@ void AProjectile::BeginPlay()
 
 }
 
+void AProjectile::StartDestroyTimer()
+{
+
+	//destroy the effects after x amount of time
+	GetWorldTimerManager().SetTimer(
+		DestroyTimer,
+		this,
+		&AProjectile::DestroyTimerFinished,
+		DestroyTime
+	);
+}
+
+void AProjectile::DestroyTimerFinished()
+{
+	Destroy();
+}
+
 void AProjectile::OnHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, FVector NormalImpulse, const FHitResult & Hit)
 {
 
@@ -82,6 +100,53 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComp, AActor * OtherActor, UPri
 
 
 	Destroy();
+}
+
+void AProjectile::ExplodeDamage()
+{
+
+	//apply radial damage
+	//what was the pawn who owns the weapon and fired the weapon
+	APawn* FiringPawn = GetInstigator();
+
+	if (FiringPawn && HasAuthority())
+	{
+		//if this was fire by a controller
+		AController* FiringController = FiringPawn->GetController();
+
+		if (FiringController)
+		{
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				this,//world context object
+				Damage, //base damage
+				10.f, // minimum damage
+				GetActorLocation(), //origin
+				DamageInnerRadius,
+				DamageOuterRadius, //Damage Outer radius
+				1.f, //Damage Falloff
+				UDamageType::StaticClass(), //Damage Tpe
+				TArray<AActor*>(), //ingore Actors (friendly fire)
+				this, //damage causer 
+				FiringController //instigatorController
+			);
+		}
+	}
+}
+
+void AProjectile::SpawnTrailSystem()
+{
+	if (TrailSystem)
+	{
+		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			TrailSystem,
+			GetRootComponent(),
+			FName(),
+			GetActorLocation(),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false
+		);
+	}
 }
 
 // Called every frame

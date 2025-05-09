@@ -15,9 +15,9 @@
 
 AProjectileRocket::AProjectileRocket()
 {
-	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
-	RocketMesh->SetupAttachment(RootComponent);
-	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
+	ProjectileMesh->SetupAttachment(RootComponent);
+	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent_"));
 	RocketMovementComponent->bRotationFollowsVelocity = true;
@@ -38,24 +38,11 @@ void AProjectileRocket::BeginPlay()
 		CollisionBox->OnComponentHit.AddDynamic(this, &AProjectileRocket::OnHit);
 	}
 
-	if (TrailSystem)
-	{
-		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
-			TrailSystem,
-			GetRootComponent(),
-			FName(),
-			GetActorLocation(),
-			GetActorRotation(),
-			EAttachLocation::KeepWorldPosition,
-			false
-		);
-	}
+	SpawnTrailSystem();
+
 }
 
-void AProjectileRocket::DestroyTimerFinished()
-{
-	Destroy();
-}
+
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -65,40 +52,9 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		return;
 	}
 
-	//apply radial damage
-	//wht was the pawn who owns the weapon and fired the weapon
-	APawn* FiringPawn = GetInstigator();
+	ExplodeDamage();
 
-	if (FiringPawn && HasAuthority())
-	{
-		//if this was fire by a controller
-		AController* FiringController = FiringPawn->GetController();
-
-		if (FiringController)
-		{
-			UGameplayStatics::ApplyRadialDamageWithFalloff(
-				this,//world context object
-				Damage, //base damage
-				10.f, // minuimum damage
-				GetActorLocation(), //origin
-				200.f, //DamageInnerRadious
-				500.f, //Damage Outer radius
-				1.f, //Damage Falloff
-				UDamageType::StaticClass(), //Damage Tpe
-				TArray<AActor*>(), //ingore Actors (friendly fire)
-				this, //damage causer 
-				FiringController //instigatorController
-			);
-		}
-	}
-
-	//destroy the effects after x amount of time
-	GetWorldTimerManager().SetTimer(
-		DestroyTimer,
-		this,
-		&AProjectileRocket::DestroyTimerFinished,
-		DestroyTime
-	);
+	StartDestroyTimer();
 
 	if (ImpactParticles)
 	{
@@ -108,9 +64,9 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 	}
-	if (RocketMesh)
+	if (ProjectileMesh)
 	{
-		RocketMesh->SetVisibility(false);
+		ProjectileMesh->SetVisibility(false);
 	}
 	if (CollisionBox)
 	{

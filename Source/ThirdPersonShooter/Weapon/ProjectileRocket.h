@@ -20,10 +20,7 @@ public:
 protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	virtual void BeginPlay() override;
-	UPROPERTY(EditAnywhere)//we can choose asset in the inspector with this macro
-	class UNiagaraSystem* TrailSystem;
-	UPROPERTY()//ensures that it is initialized to null
-	class UNiagaraComponent* TrailSystemComponent;
+
 	UPROPERTY(EditAnywhere)
 	USoundCue* ProjectileLoop;
 
@@ -32,19 +29,10 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	USoundAttenuation* LoopingSoundAttenuation;
-	void DestroyTimerFinished();
 
 	UPROPERTY(VisibleAnywhere)
 	class URocketMovementComponent* RocketMovementComponent;
 private:
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* RocketMesh;
 
 
-	FTimerHandle DestroyTimer;
-
-	UPROPERTY(EditAnywhere)
-	float DestroyTime = 3.f;
-
-	
 };

@@ -141,6 +141,9 @@ void ABlasterCharacter::PlayReloadMontage()
 			case EWeaponType::EWT_SniperRifle:
 				SectionName = FName("Rifle");
 				break; 
+			case EWeaponType::EWT_GrenageLauncher:
+				SectionName = FName("Rifle");
+				break;
 		}
 		// UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
 	if (GEngine)

@@ -20,8 +20,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void StartDestroyTimer();
+
+	void DestroyTimerFinished();
+
+	void SpawnTrailSystem();
+
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	void ExplodeDamage();
 
 	UPROPERTY(EditAnywhere)
 	float Damage;
@@ -38,6 +46,21 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
 
+	UPROPERTY(EditAnywhere)//we can choose asset in the inspector with this macro
+	class UNiagaraSystem* TrailSystem;
+
+	UPROPERTY()//ensures that it is initialized to null
+	class UNiagaraComponent* TrailSystemComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* ProjectileMesh;
+
+	UPROPERTY(EditAnywhere)
+	float DamageInnerRadius = 200.f;
+
+	UPROPERTY(EditAnywhere)
+	float DamageOuterRadius = 500.f;
+
 private:
 
 	UPROPERTY(EditAnywhere)
@@ -45,9 +68,11 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystemComponent* TracerComponent;
-	
 
-	
+	FTimerHandle DestroyTimer;
+
+	UPROPERTY(EditAnywhere)
+	float DestroyTime = 3.f;
 
 public:	
 	// Called every frame

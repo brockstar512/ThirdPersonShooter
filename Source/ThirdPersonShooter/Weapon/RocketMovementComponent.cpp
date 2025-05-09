@@ -15,3 +15,8 @@ void URocketMovementComponent::HandleImpact(const FHitResult& Hit, float TimeSli
 {
 	// Rockets should not stop; only explode when their CollisionBox detects a hit
 }
+
+
+/*
+we need a rocket movement to handle/override the impact... that is the purpose of why rocket needs a movement script and others bullets don't
+*/
