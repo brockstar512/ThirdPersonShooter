@@ -14,45 +14,47 @@ UCLASS()
 class MULTIPLAYERSESSIONS_API UMenu : public UUserWidget
 {
 	GENERATED_BODY()
-	public:
-		UFUNCTION(BlueprintCallable)
-		void MenuSetup(int32 NumberOfPublicConnections = 4,FString TypeOfMatch = FString(TEXT("FreeForAll")),FString LobbyPath = FString(TEXT("/Game/ThirdPerson/Maps/Lobby")));
+public:
+	UFUNCTION(BlueprintCallable)
+	void MenuSetup(int32 NumberOfPublicConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")), FString LobbyPath = FString(TEXT("/Game/ThirdPersonCPP/Maps/Lobby")));
 
-	protected:
-		virtual bool Initialize() override;
-		virtual void NativeDestruct() override;
+protected:
 
-		//
-		//Callbacks for the custom delagtes on the MultiplayerSessionsSubsystem
-		//
-		UFUNCTION()
-		void OnCreateSession(bool bWasSuccessful);//this is the type of delegate that can be bind to the delegate
-		void OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults,bool bWasSuccessful);
-		void OnJoinSession(EOnJoinSessionCompleteResult::Type Result);
-		UFUNCTION()
-		void OnDestroySession(bool bWasSuccessful);
-		UFUNCTION()
-		void OnStartSession(bool bWasSuccessful);
+	virtual bool Initialize() override;
+	virtual void NativeDestruct() override;
 
-	private:
-		UPROPERTY(meta = (BindWidget))
-		class UButton* HostButton;//name of the variable must have the same name as the widget in blueprints
-		UPROPERTY(meta = (BindWidget))
-		UButton* JoinButton;
-	
-		//because we are bding this function to an onclick event or delegate these have to be u functions
-		UFUNCTION()
-		void HostButtonClicked();
-		UFUNCTION()
-		void JoinButtonClicked();
+	//
+	// Callbacks for the custom delegates on the MultiplayerSessionsSubsystem
+	//
+	UFUNCTION()
+	void OnCreateSession(bool bWasSuccessful);
+	void OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
+	void OnJoinSession(EOnJoinSessionCompleteResult::Type Result);
+	UFUNCTION()
+	void OnDestroySession(bool bWasSuccessful);
+	UFUNCTION()
+	void OnStartSession(bool bWasSuccessful);
 
-		UFUNCTION()
-		void MenuTearDown();
-		//subsystem designed to handle all online session functionality
-		class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
+private:
 
-		int32 NumPublicConnections{4};
-		FString MatchType{TEXT("FreeForAll")};
-		FString PathToLobby{TEXT("")};
+	UPROPERTY(meta = (BindWidget))
+	class UButton* HostButton;
 
+	UPROPERTY(meta = (BindWidget))
+	UButton* JoinButton;
+
+	UFUNCTION()
+	void HostButtonClicked();
+
+	UFUNCTION()
+	void JoinButtonClicked();
+
+	void MenuTearDown();
+
+	// The subsystem designed to handle all online session functionality
+	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
+
+	int32 NumPublicConnections{4};
+	FString MatchType{TEXT("FreeForAll")};
+	FString PathToLobby{TEXT("")};
 };
