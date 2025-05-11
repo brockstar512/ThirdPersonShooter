@@ -44,7 +44,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 			
 		}
 
-		if (ImpactParticles)
+		if (ImpactParticles && FireHit.bBlockingHit)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(
 				GetWorld(),
