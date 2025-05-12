@@ -106,13 +106,13 @@ private:
 	TMap<EWeaponType, int32> CarriedAmmoMap;
 
 	void InitializeCarriedAmmo();
-
+	//how much the player has each time they start... the ammo on the gun is how much is in the gun so on the hud it's (how much is in the gun / how much is on player)
 	UPROPERTY(EditAnywhere)
 	int32 StartingARAmmo = 30;
 	UPROPERTY(EditAnywhere)
-	int32 StartingRocketAmmo = 0;
+	int32 StartingRocketAmmo = 50;
 	UPROPERTY(EditAnywhere)
-	int32 StartingPistolAmmo = 0;
+	int32 StartingPistolAmmo = 30;
 	UPROPERTY(EditAnywhere)
 	int32 StartingSMGAmmo = 0;
 	UPROPERTY(EditAnywhere)
@@ -120,7 +120,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 StartingSniperRifleAmmo = 0;
 	UPROPERTY(EditAnywhere)
-	int32 StartingGrenadeLaunchereAmmo = 0;
+	int32 StartingGrenadeLauncherAmmo = 100;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;

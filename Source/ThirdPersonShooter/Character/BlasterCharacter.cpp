@@ -113,6 +113,10 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 
 void ABlasterCharacter::PlayReloadMontage()
 {
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, "Start");
+	}
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -120,36 +124,41 @@ void ABlasterCharacter::PlayReloadMontage()
 	{
 		AnimInstance->Montage_Play(ReloadMontage);
 		FName SectionName;
-
+		//which animation montage to use
 		switch(Combat->EquippedWeapon->GetWeaponType())
 		{
 			case EWeaponType::EWT_AssaultRifle:
 			SectionName = FName("Rifle");
 			break;
 			case EWeaponType::EWT_RocketLauncher:
-				SectionName = FName("Rifle");
+				SectionName = FName("RocketLauncher");
 				break;
 			case EWeaponType::EWT_Pistol:
-				SectionName = FName("Rifle");
+				SectionName = FName("Pistol");
 				break;
 			case EWeaponType::EWT_SubMachineGun:
-				SectionName = FName("Rifle");
+				SectionName = FName("Pistol");
 				break;
 			case EWeaponType::EWT_Shotgun:
-				SectionName = FName("Rifle");
+				SectionName = FName("Shotgun");
 				break;
 			case EWeaponType::EWT_SniperRifle:
-				SectionName = FName("Rifle");
+				SectionName = FName("Sniper");
 				break; 
 			case EWeaponType::EWT_GrenageLauncher:
-				SectionName = FName("Rifle");
+				SectionName = FName("GrenadeLauncher");
 				break;
 		}
-		// UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("Reloading")));
-	}
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, *SectionName.ToString());
+		}
+		 //UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
+		//if (GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("Reloading")));
+		//}
+
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
@@ -823,6 +832,11 @@ void ABlasterCharacter::Destroyed()
 
 void ABlasterCharacter::ReloadButtonPressed()
 {
+	if (GEngine)
+	{
+		FString Message = FString::Printf(TEXT("Reload Button pressed"));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, Message);
+	}
 	if (bDisableGameplay) return;
 
 	if(Combat)

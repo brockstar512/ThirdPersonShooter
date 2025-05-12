@@ -115,10 +115,30 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SubMachineGun, StartingSMGAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, StartingShotgunAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, StartingSniperRifleAmmo);
-	CarriedAmmoMap.Emplace(EWeaponType::EWT_GrenageLauncher, StartingGrenadeLaunchereAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_GrenageLauncher, StartingGrenadeLauncherAmmo);
 
+	if (GEngine)
+	{
+		FString Message = FString::Printf(TEXT(
+			"Initialized Ammo:\n"
+			"AssaultRifle: %d\n"
+			"RocketLauncher: %d\n"
+			"Pistol: %d\n"
+			"SubMachineGun: %d\n"
+			"Shotgun: %d\n"
+			"SniperRifle: %d\n"
+			"GrenadeLauncher: %d"),
+			StartingARAmmo,
+			StartingRocketAmmo,
+			StartingPistolAmmo,
+			StartingSMGAmmo,
+			StartingShotgunAmmo,
+			StartingSniperRifleAmmo,
+			StartingGrenadeLauncherAmmo
+		);
 
-
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, Message);
+	}
 }
 
 
@@ -186,6 +206,7 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 	EquippedWeapon->SetHUDAmmo();
 
 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+
 	
 	if(CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
@@ -218,6 +239,7 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 
 void UCombatComponent::Reload()
 {
+
 	if(CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
 	{
 		ServerReload();
@@ -256,6 +278,23 @@ int32 UCombatComponent::AmountToReload()
 	}
 	//how empty is our mag
 	int32 RoomInMag = EquippedWeapon->GetMagCapacity() - EquippedWeapon->GetAmmo();
+
+	//how much room in mag we have to pull from
+	if (GEngine)
+	{
+		FString Message = FString::Printf(TEXT("Room in mag: %d"), RoomInMag);
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, Message);
+	}
+	//are we reading the correct weapon
+	if (GEngine)
+	{
+		bool bHasAmmo = CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType());
+		FString Message = FString::Printf(TEXT("Does ammo exist: %s"), bHasAmmo ? TEXT("true") : TEXT("false"));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, Message);
+	}
+
+
+
 	if(CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
 		//how much do I have in my reserve
