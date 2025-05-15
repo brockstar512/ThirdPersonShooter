@@ -11,6 +11,8 @@
 #include "Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
+#include "ThirdPersonShooter//BlasterComponents/CombatComponent.h"
+
 // Sets default values
 AWeapon::AWeapon()
 {
@@ -190,10 +192,20 @@ bool AWeapon::IsEmpty()
     return Ammo <= 0;
 }
 
+bool AWeapon::IsFull()
+{
+	return Ammo == MagCapacity;
+}
+
 void AWeapon::OnRep_Ammo()
 {
 	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
-	//this will run oin the client when ammo changes
+
+	if (BlasterOwnerCharacter && BlasterOwnerCharacter->GetCombat() && IsFull())
+	{
+		BlasterOwnerCharacter->GetCombat()->JumpToShotgunEnd();
+	}
+	//this will run on the client when ammo changes
 	SetHUDAmmo();
 	
 }

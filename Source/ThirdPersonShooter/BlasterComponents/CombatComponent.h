@@ -128,9 +128,12 @@ private:
 	void OnRep_CombatState();
 
 	void UpdateAmmoValues();
+	void UpdateShotgunAmmoValues();
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+	UFUNCTION(BlueprintCallable)
+	void ShotGunShellReload();
+	void JumpToShotgunEnd();
 		
 };
