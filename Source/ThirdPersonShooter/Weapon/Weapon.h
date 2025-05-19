@@ -141,6 +141,9 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
+	//enable or diable custom depth
+	void EnableCustomDepth(bool bEnable);
+	 
 };
 
 /*
