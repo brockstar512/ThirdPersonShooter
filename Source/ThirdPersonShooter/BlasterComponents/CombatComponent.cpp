@@ -215,6 +215,8 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 		return;
 	}
 
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	
 	if(EquippedWeapon)
 	{
 		EquippedWeapon->Dropped();
@@ -267,10 +269,15 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 void UCombatComponent::Reload()
 {
 	//when we want to reload tell the server to reload
-	if(CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		ServerReload();
 	}
+}
+
+void UCombatComponent::ThrowGrenadeFinished()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::FinishReloading()
@@ -356,6 +363,13 @@ void UCombatComponent::OnRep_CombatState()
 			Fire();
 		}	
 		break;
+		case ECombatState::ECS_ThrowingGrenade:
+			if (Character && !Character->IsLocallyControlled())
+			{
+				Character->PlayThrowGrenadeMontage();
+			}
+			break;
+
 	}
 }
 
@@ -447,6 +461,29 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 	if(Character)
 	{
 		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+	}
+}
+
+void UCombatComponent::ThrowGrenade()
+{
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	CombatState = ECombatState::ECS_ThrowingGrenade;
+	if (Character)
+	{
+		Character->PlayThrowGrenadeMontage();
+	}
+	if (Character && !Character->HasAuthority())
+	{
+		ServerThrowGrenade();
+	}
+}
+
+void UCombatComponent::ServerThrowGrenade_Implementation()
+{
+	CombatState = ECombatState::ECS_ThrowingGrenade;
+	if (Character)
+	{
+		Character->PlayThrowGrenadeMontage();
 	}
 }
 

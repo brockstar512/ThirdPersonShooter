@@ -429,6 +429,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABlasterCharacter::FireButtonReleased);
+	PlayerInputComponent->BindAction("ThrowGrenade", IE_Pressed, this, &ABlasterCharacter::GrenadeButtonPressed);
 
 
 }
@@ -832,15 +833,32 @@ void ABlasterCharacter::Destroyed()
 
 void ABlasterCharacter::ReloadButtonPressed()
 {
-	if (GEngine)
-	{
-		FString Message = FString::Printf(TEXT("Reload Button pressed"));
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, Message);
-	}
+	//if (GEngine)
+	//{
+	//	FString Message = FString::Printf(TEXT("Reload Button pressed"));
+	//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, Message);
+	//}
 	if (bDisableGameplay) return;
 
 	if(Combat)
 	{
 		Combat->Reload();
+	}
+}
+
+void ABlasterCharacter::PlayThrowGrenadeMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ThrowGrenadeMontage)
+	{
+		AnimInstance->Montage_Play(ThrowGrenadeMontage);
+	}
+}
+
+void ABlasterCharacter::GrenadeButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->ThrowGrenade();
 	}
 }

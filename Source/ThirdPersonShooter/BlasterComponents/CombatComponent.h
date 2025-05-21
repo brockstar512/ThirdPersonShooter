@@ -45,6 +45,10 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	void ServerReload();
 	void HandleReload();
 	int32 AmountToReload();
+	void ThrowGrenade();
+
+	UFUNCTION(Server, Reliable)
+	void ServerThrowGrenade();
 private:
 	class ABlasterCharacter* Character;
 	class ABlasterPlayerController* Controller;
@@ -135,5 +139,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ShotGunShellReload();
 	void JumpToShotgunEnd();
-		
+	UFUNCTION(BlueprintCallable)
+	void ThrowGrenadeFinished();
 };

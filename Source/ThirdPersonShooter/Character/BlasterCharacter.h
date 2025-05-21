@@ -39,6 +39,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastElim();
 	virtual void Destroyed() override;
+	void PlayThrowGrenadeMontage();
 
 	//this will only run on blue prints. a cpp function body will break compilation.there is a way to run both the C++ implementation and the Blueprint logic
 	// by using the BlueprintNativeEvent macro argumentIf the Blueprint overrides it, the Blueprint version is called instead, not both automatically. But you can explicitly call the C++ version from Blueprint
@@ -63,6 +64,7 @@ protected:
 	void FireButtonReleased();
 	void PlayHitReactMontage();
 	void RotateInPlace(float DeltaTime);
+	void GrenadeButtonPressed();
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
@@ -98,6 +100,8 @@ private:
 	UAnimMontage* HitReactMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ElimMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* ThrowGrenadeMontage;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ReloadMontage;
 	void HideCameraIfCharacterClose();
