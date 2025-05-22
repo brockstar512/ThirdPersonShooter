@@ -394,6 +394,7 @@ void UCombatComponent::OnRep_CombatState()
 			if (Character && !Character->IsLocallyControlled())
 			{
 				Character->PlayThrowGrenadeMontage();
+				AttachActorToLeftHand(EquippedWeapon);
 			}
 			break;
 
@@ -512,6 +513,7 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 	if (Character)
 	{
 		Character->PlayThrowGrenadeMontage();
+		AttachActorToLeftHand(EquippedWeapon);
 	}
 }
 
