@@ -222,11 +222,14 @@ void UCombatComponent::AttachActorToRightHand(AActor* AActorToAttach)
 
 void UCombatComponent::AttachActorToLeftHand(AActor* AActorToAttach)
 {
-	if (Character == nullptr || Character->GetMesh() == nullptr || AActorToAttach == nullptr)
+	if (Character == nullptr || Character->GetMesh() == nullptr || AActorToAttach == nullptr || EquippedWeapon == nullptr)
 	{
 		return;
 	}
-	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("LeftHandSocket"));
+	bool bUseSmallGunSocket = EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Pistol ||
+		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SubMachineGun;
+	FName socketName = bUseSmallGunSocket ? FName("SmallGunSocket") : FName("LeftHandSocket");
+	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(socketName);
 
 	if (HandSocket)
 	{
