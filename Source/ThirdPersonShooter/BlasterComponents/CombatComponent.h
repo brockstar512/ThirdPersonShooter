@@ -29,7 +29,13 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	void SetAiming(bool bIsAiming);
-	
+	void DroppedEquippedWeapon();
+	void AttachActorToRightHand(AActor* AActorToAttach);
+	void AttachActorToLeftHand(AActor* AActorToAttach);
+
+	void UpdateCarriedAmmo();
+	void PlayEquippedWeaponSound();
+	void ReloadEmptyWeapon();
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
 	UFUNCTION()
