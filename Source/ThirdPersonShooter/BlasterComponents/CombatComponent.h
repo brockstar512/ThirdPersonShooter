@@ -54,6 +54,8 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	void HandleReload();
 	int32 AmountToReload();
 	void ThrowGrenade();
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProjectile> GrenadeClass;
 
 	UFUNCTION(Server, Reliable)
 	void ServerThrowGrenade();
