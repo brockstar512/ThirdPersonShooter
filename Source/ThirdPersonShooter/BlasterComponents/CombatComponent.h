@@ -27,6 +27,9 @@ public:
 	void FireButtonPressed(bool bIsPressed);
 	UFUNCTION(BlueprintCallable)
 	void LaunchGrenade();
+
+	UFUNCTION(Server, Reliable)
+	void ServerLaunchGrenade(const FVector_NetQuantize& Target);
 protected://	friend class ABlasterCharacter; now blaster character has access to all of the combat compoannts protected and priate stuff
 	// Called when the game starts
 	virtual void BeginPlay() override;
