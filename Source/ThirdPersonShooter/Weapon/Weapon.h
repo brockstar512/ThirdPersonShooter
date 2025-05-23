@@ -292,4 +292,21 @@ muilticast: these run on both the client and server... call it on the server
 	Delivery =>	UFUNCTION(Server, ...) : Runs once, on server | UFUNCTION(NetMulticast, ...) : Broadcasts and runs on all clients and server
 	Reliable vs Unreliable => UFUNCTION(Server, ...) : Can be either | UFUNCTION(NetMulticast, ...) : Can be either (but Reliable is common for visible effects)
 
+
+
+
+
+
+	***
+	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade"));
+	Use CreateDefaultSubobject<T>() when: You want the component to exist in every instance of the class. or You want the subobject to be part of the default object hierarchy
+	Do NOT use CreateDefaultSubobject when: You want to create a transient or runtime-only object.
+
+	AttachedGrenade->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
+	This line is attaching a component (e.g., a grenade) to a specific socket on a skeletal mesh, like a character's hand or belt.
+
+	so altogether these are doing... 
+	1) Created as part of the character (or actor).
+	2)Attached to a specific socket on the character's skeletal mesh (e.g., hand or belt).
+
 */
