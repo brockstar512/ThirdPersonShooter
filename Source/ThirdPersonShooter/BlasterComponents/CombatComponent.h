@@ -25,6 +25,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
 	void FireButtonPressed(bool bIsPressed);
+	UFUNCTION(BlueprintCallable)
+	void LaunchGrenade();
 protected://	friend class ABlasterCharacter; now blaster character has access to all of the combat compoannts protected and priate stuff
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -139,6 +141,7 @@ private:
 
 	void UpdateAmmoValues();
 	void UpdateShotgunAmmoValues();
+	void ShowAttachedGrenade(bool bShowGrenade);
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
