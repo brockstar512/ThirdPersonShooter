@@ -176,6 +176,7 @@ void AWeapon::Tick(float DeltaTime)
 
 }
 
+//do i need hittarget?
 void AWeapon::Fire(const FVector& HitTarget)
 {
 	if(FireAnimation)

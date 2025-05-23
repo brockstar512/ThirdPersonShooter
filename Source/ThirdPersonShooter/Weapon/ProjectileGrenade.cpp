@@ -4,9 +4,14 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
-
+//the movement of projectiles is controlled in the projectile movement component
 AProjectileGrenade::AProjectileGrenade()
 {
+	/*
+	To make a projectile in Unreal Engine 5 follow a higher arc without affecting its overall speed, you need to adjust the initial launch angle or velocity direction, rather than increasing the speed itself. You can do that in projectile movement comppnent
+
+	//i increaces the z velocity in blueprint, but I could do it in code instead, but make sure to do it in combat so it does not effect grenade launcher
+	*/
 
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
