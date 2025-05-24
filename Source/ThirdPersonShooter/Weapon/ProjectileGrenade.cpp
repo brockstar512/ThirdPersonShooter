@@ -8,9 +8,7 @@
 AProjectileGrenade::AProjectileGrenade()
 {
 	/*
-	To make a projectile in Unreal Engine 5 follow a higher arc without affecting its overall speed, you need to adjust the initial launch angle or velocity direction, rather than increasing the speed itself. You can do that in projectile movement comppnent
 
-	//i increaces the z velocity in blueprint, but I could do it in code instead, but make sure to do it in combat so it does not effect grenade launcher
 	*/
 
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
@@ -21,7 +19,6 @@ AProjectileGrenade::AProjectileGrenade()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->bShouldBounce = true;
-
 }
 
 void AProjectileGrenade::Destroyed()
@@ -32,6 +29,23 @@ void AProjectileGrenade::Destroyed()
 
 void AProjectileGrenade::BeginPlay()
 {
+
+
+	if (GEngine)
+	{
+		const FVector Velocity = GetVelocity();
+		const FString NetRole = HasAuthority() ? TEXT("Server") : TEXT("Client");
+		const FString Message = FString::Printf(TEXT("[%s] Velocity: %s"), *NetRole, *Velocity.ToString());
+
+		GEngine->AddOnScreenDebugMessage(
+			-1,              // Show new message each frame
+			5.0f,            // Short duration so it refreshes each frame
+			FColor::Cyan,    // Color
+			Message
+		);
+	}
+
+
 	//we are not going to begin play because the parent class explodes on impact. we want to explode after timer
 	//so we are going to use the base class override
 	AActor::BeginPlay();

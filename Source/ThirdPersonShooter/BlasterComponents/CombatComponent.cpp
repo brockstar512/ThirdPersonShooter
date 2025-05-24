@@ -43,12 +43,13 @@ void UCombatComponent::BeginPlay()
 			DefaultFOV = Character->GetFollowCamera()->FieldOfView;
 			CurrentFOV = DefaultFOV;
 		}
+
+		if (Character->HasAuthority())
+		{
+			InitializeCarriedAmmo();
+		}
 	}
-	
-	if(Character->HasAuthority())
-	{
-		InitializeCarriedAmmo();
-	}
+
 }
 
 void UCombatComponent::InterpFOV(float DeltaTime)
@@ -155,6 +156,16 @@ void UCombatComponent::InitializeCarriedAmmo()
 	}
 }
 
+void UCombatComponent::UpdateHudGrenades()
+{
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDGrenades(Grenades);
+
+	}
+}
+
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -191,6 +202,8 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent,EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent,bAiming);
 	DOREPLIFETIME(UCombatComponent,CombatState);
+	DOREPLIFETIME(UCombatComponent, Grenades);
+
 
 	//replicating only on the client owner
 	DOREPLIFETIME_CONDITION(UCombatComponent,CarriedAmmo, COND_OwnerOnly);
@@ -460,6 +473,11 @@ void UCombatComponent::ShowAttachedGrenade(bool bShowGrenade)
 	}
 }
 
+void UCombatComponent::OnRep_Grenades()
+{
+	UpdateHudGrenades();
+}
+
 void UCombatComponent::JumpToShotgunEnd()
 {
 	// Jump to ShotgunEnd section
@@ -541,6 +559,7 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 
 void UCombatComponent::ThrowGrenade()
 {
+	if (Grenades == 0) return;
 	if (CombatState != ECombatState::ECS_Unoccupied || EquippedWeapon == nullptr) return;
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 	if (Character)
@@ -549,14 +568,25 @@ void UCombatComponent::ThrowGrenade()
 		AttachActorToLeftHand(EquippedWeapon);
 		ShowAttachedGrenade(true);
 	}
+	//if a listen server client (host) is here it will not be called on the server.
+	//the other clients will tell the server to throw the grenades
 	if (Character && !Character->HasAuthority())
 	{
+		//the clients will tell the server when to throw the grenades to update the game of other remote clients
+		//then the listen server who is the client will be able to throw the grenades through the on rep update combat state function
 		ServerThrowGrenade();
+	}
+	if (Character && Character->HasAuthority())
+	{
+		Grenades = FMath::Clamp(Grenades - 1, 0, MaxGrenades);
+		UpdateHudGrenades();
 	}
 }
 
 void UCombatComponent::ServerThrowGrenade_Implementation()
 {
+	if (Grenades == 0) return;
+
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 	if (Character)
 	{
@@ -565,6 +595,8 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 		ShowAttachedGrenade(true);
 
 	}
+	Grenades = FMath::Clamp(Grenades - 1, 0, MaxGrenades);
+	UpdateHudGrenades();
 }
 
 void UCombatComponent::OnRep_EquippedWeapon()

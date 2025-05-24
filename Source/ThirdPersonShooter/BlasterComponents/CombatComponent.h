@@ -147,6 +147,17 @@ private:
 	void UpdateAmmoValues();
 	void UpdateShotgunAmmoValues();
 	void ShowAttachedGrenade(bool bShowGrenade);
+	
+
+	UFUNCTION()
+	void OnRep_Grenades();
+	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
+	int32 Grenades = 4;
+	UPROPERTY(EditAnywhere)
+	int32 MaxGrenades = 4;
+
+	void UpdateHudGrenades();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -155,4 +166,5 @@ public:
 	void JumpToShotgunEnd();
 	UFUNCTION(BlueprintCallable)
 	void ThrowGrenadeFinished();
+	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 };
