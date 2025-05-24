@@ -29,25 +29,6 @@ void AProjectileGrenade::Destroyed()
 
 void AProjectileGrenade::BeginPlay()
 {
-
-
-	if (GEngine)
-	{
-		const FVector Velocity = GetVelocity();
-		const FString NetRole = HasAuthority() ? TEXT("Server") : TEXT("Client");
-		const FString Message = FString::Printf(TEXT("[%s] Velocity: %s"), *NetRole, *Velocity.ToString());
-
-		GEngine->AddOnScreenDebugMessage(
-			-1,              // Show new message each frame
-			5.0f,            // Short duration so it refreshes each frame
-			FColor::Cyan,    // Color
-			Message
-		);
-	}
-
-
-	//we are not going to begin play because the parent class explodes on impact. we want to explode after timer
-	//so we are going to use the base class override
 	AActor::BeginPlay();
 	SpawnTrailSystem();
 	StartDestroyTimer();

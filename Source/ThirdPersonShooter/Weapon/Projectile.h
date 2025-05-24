@@ -74,8 +74,18 @@ private:
 	UPROPERTY(EditAnywhere)
 	float DestroyTime = 3.f;
 
+	//i added this might not be necessary....this might need to be on combat cmponent instead. 
+	// or added to projectile and ran on combat component to apply to grenades as well
+	UPROPERTY(EditAnywhere)
+	double ArchVelocity = 0;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	//i added this might not be necessary
+	FORCEINLINE UProjectileMovementComponent* GetProjectileMovementComponent() const { return ProjectileMovementComponent; }
+	//i added this might not be necessary....this might need to be on combat cmponent instead. 
+	FORCEINLINE double GetArchVelocity() const { return ArchVelocity; }
 
 };

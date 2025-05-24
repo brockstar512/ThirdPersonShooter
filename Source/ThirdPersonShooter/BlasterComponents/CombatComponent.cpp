@@ -17,6 +17,8 @@
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 #include "ThirdPersonShooter/Weapon/Projectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
@@ -538,12 +540,29 @@ void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuant
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			World->SpawnActor<AProjectile>(
+			//if i remove projectile arch remove the cahcing of the AProjectile* SpawnedProjectile
+			AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(
 				GrenadeClass,
 				StartingLocation,
 				ToTarget.Rotation(),
 				SpawnParams
 			);
+
+			//i added  this might not be correct
+			//i did this... it might not work properly this ->
+			if (SpawnedProjectile)
+			{
+				// Get the projectile movement component
+				UProjectileMovementComponent* ProjectileMovement = SpawnedProjectile->GetProjectileMovementComponent();
+				if (ProjectileMovement)
+				{
+					// Modify the velocity's Z component
+
+					// Option 2: Add an upward boost (uncomment if needed)
+					ProjectileMovement->Velocity += FVector(0.f, 0.f, SpawnedProjectile->GetArchVelocity());
+				}
+			}
+			// <- to this
 		}
 	}
 }

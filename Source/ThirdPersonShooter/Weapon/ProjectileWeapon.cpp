@@ -3,8 +3,11 @@
 
 #include "ProjectileWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Projectile.h"
 
+
+//this is what creates the projectile
 void AProjectileWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
@@ -26,13 +29,29 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				World->SpawnActor<AProjectile>(
+				AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(
 					ProjectileClass,
 					SocketTransform.GetLocation(),
 					TargetRotation,
 					SpawnParams
 					);
+
+				//i did this... it might not work properly this ->
+				if (SpawnedProjectile)
+				{
+					// Get the projectile movement component
+					UProjectileMovementComponent* ProjectileMovement = SpawnedProjectile->GetProjectileMovementComponent();
+					if (ProjectileMovement)
+					{
+						// Modify the velocity's Z component
+
+						// Option 2: Add an upward boost 
+						 ProjectileMovement->Velocity += FVector(0.f, 0.f, SpawnedProjectile->GetArchVelocity());
+					}
+				}
+				// <- to this
 			}
+
 		}
 	}
 }
