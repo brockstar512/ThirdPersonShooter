@@ -156,10 +156,10 @@ void ABlasterCharacter::PlayReloadMontage()
 				SectionName = FName("GrenadeLauncher");
 				break;
 		}
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, *SectionName.ToString());
-		}
+		//if (GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, *SectionName.ToString());
+		//}
 		 //UE_LOG(LogTemp, Warning, TEXT("string %s"), *SectionName.ToString());
 		//if (GEngine)
 		//{
@@ -328,6 +328,10 @@ void ABlasterCharacter::PlayHitReactMontage()
 
 void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatorController, AActor * DamageCauser)
 {
+	if (bElimmed)
+	{
+		return;
+	}
 	//this will call on rep health... the replicated function will take care of playing the montage on the client
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	//variable replication is more effecient than rpc
