@@ -84,3 +84,4 @@ void AShotgun::Fire(const FVector& HitTarget)
 	}
 
 }
+

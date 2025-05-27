@@ -561,6 +561,14 @@ void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuant
 					// Option 2: Add an upward boost (uncomment if needed)
 					ProjectileMovement->Velocity += FVector(0.f, 0.f, SpawnedProjectile->GetArchVelocity());
 				}
+				//however best practices is 
+				//If you want clients to control something like arching velocity, you must :Send it to the server via a Server RPC param:
+				//void ServerLaunchGrenade(FVector_NetQuantize Target, float ArchZ);
+				//i am not doing that but if there is a bug later I will consider changing this.
+				// 
+				//Because ServerLaunchGrenade_Implementation() is already running on the server, all values used inside that function are pulled from server-side 
+				//instances — including SpawnedProjectile->GetArchVelocity().
+				//it may be inconsistent
 			}
 			// <- to this
 		}
@@ -851,5 +859,17 @@ void UCombatComponent::Fire()
 			CrosshairShootingFactor = .75f;
 		}
 		StartFireTimer();
+	}
+}
+void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
+{
+	if (CarriedAmmoMap.Contains(WeaponType))
+	{
+		CarriedAmmoMap[WeaponType] = FMath::Clamp(CarriedAmmoMap[WeaponType] + AmmoAmount, 0, MaxCarriedAmmo);
+		UpdateCarriedAmmo();
+	}
+	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == WeaponType)
+	{
+		Reload();
 	}
 }

@@ -30,6 +30,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerLaunchGrenade(const FVector_NetQuantize& Target);
+	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
 protected://	friend class ABlasterCharacter; now blaster character has access to all of the combat compoannts protected and priate stuff
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -121,6 +122,8 @@ private:
 
 	//uses a hash algorith which can never be replicated
 	TMap<EWeaponType, int32> CarriedAmmoMap;
+	UPROPERTY(EditAnywhere)
+	int32 MaxCarriedAmmo = 500;
 
 	void InitializeCarriedAmmo();
 	//how much the player has each time they start... the ammo on the gun is how much is in the gun so on the hud it's (how much is in the gun / how much is on player)
