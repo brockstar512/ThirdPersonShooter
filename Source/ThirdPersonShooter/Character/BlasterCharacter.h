@@ -44,6 +44,7 @@ public:
 	//this will only run on blue prints. a cpp function body will break compilation.there is a way to run both the C++ implementation and the Blueprint logic
 	// by using the BlueprintNativeEvent macro argumentIf the Blueprint overrides it, the Blueprint version is called instead, not both automatically. But you can explicitly call the C++ version from Blueprint
 	//
+	void UpdateHUDHealth();
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
 protected:
@@ -68,7 +69,6 @@ protected:
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
-	void UpdateHUDHealth();
 	//poll for any relevant classes and initialize our hud
 	void PollInit();
 private:
@@ -85,6 +85,9 @@ private:
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);//can only have a parameter of type it is replicating...this is to help figure out which widget to hide when we are not with it anymore
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
+	UPROPERTY(VisibleAnywhere)
+	class UBuffComponent* Buff;
+
 	//reliable are guaranteed to be executed unreliable may or not be executed depending if the data packet was dropped similar to tcp vs UDP
 	UFUNCTION(Server,Reliable)//one off actiosna re good to make reliable
 	void ServerEquipButtonPressed();
@@ -118,7 +121,7 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Health,VisibleAnywhere, Category = "Player Stats")
 	float Health = 100.f;
 	UFUNCTION()
-	void OnRep_Health();
+	void OnRep_Health(float LastHealth);
 	bool bElimmed = false;
 	FTimerHandle ElimTimer;
 	UPROPERTY(EditDefaultsOnly)//can only edit the default character
@@ -172,7 +175,7 @@ public:
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
 	AWeapon* GetEqippedWeapon();
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}
-	//UPROPERTY(VisibleAnywhere, Category = CombatComponent)this will add a vriable string  called hello to the category on myblastercharacter
+	//UPROPERTY(VisibleAnywhere, Category = CombatComponent)this will add a vriable string  called hello to the caFtegory on myblastercharacter
 	//FString hello = "Hello";
 	FVector GetHitTarget() const;
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
@@ -180,6 +183,8 @@ public:
 	FORCEINLINE bool IsElimmed() const {return bElimmed;}
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE void SetHealth(float Amount) { Health = Amount; }
+
 	ECombatState GetCombatState() const;
 	UPROPERTY(Replicated)
 	bool bDisableGameplay = false;
@@ -187,4 +192,6 @@ public:
 	FORCEINLINE bool GetDisabledGameplay() const { return bDisableGameplay; }
 	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
+	FORCEINLINE UBuffComponent* GetBuff() const { return Buff; }
+
 };
