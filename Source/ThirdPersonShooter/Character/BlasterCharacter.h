@@ -45,6 +45,7 @@ public:
 	// by using the BlueprintNativeEvent macro argumentIf the Blueprint overrides it, the Blueprint version is called instead, not both automatically. But you can explicitly call the C++ version from Blueprint
 	//
 	void UpdateHUDHealth();
+	void UpdateHUDShield();
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
 protected:
@@ -120,8 +121,14 @@ private:
 	float MaxHealth = 100.f;
 	UPROPERTY(ReplicatedUsing = OnRep_Health,VisibleAnywhere, Category = "Player Stats")
 	float Health = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxShield = 100.f;
+	UPROPERTY(ReplicatedUsing = OnRep_Shield, VisibleAnywhere, Category = "Player Stats")
+	float Shield = 100.f;
 	UFUNCTION()
 	void OnRep_Health(float LastHealth);
+	UFUNCTION()
+	void OnRep_Shield(float LastShield);
 	bool bElimmed = false;
 	FTimerHandle ElimTimer;
 	UPROPERTY(EditDefaultsOnly)//can only edit the default character

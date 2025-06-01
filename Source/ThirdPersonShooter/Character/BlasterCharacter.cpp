@@ -81,6 +81,8 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	//register replicted health
 	DOREPLIFETIME(ABlasterCharacter, Health);
+	DOREPLIFETIME(ABlasterCharacter, Shield);
+
 	DOREPLIFETIME(ABlasterCharacter, bDisableGameplay);
 
 }
@@ -108,6 +110,7 @@ void ABlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	if(HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
@@ -348,11 +351,31 @@ void ABlasterCharacter::ReceiveDamage(AActor * DamagedActor, float Damage, const
 	{
 		return;
 	}
+
+	float DamageToHealth = Damage;
+	if (Shield > 0.f)
+	{
+		//absorbed the damage
+		if (Shield >= Damage)
+		{
+			Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
+			DamageToHealth = 0.f;
+		}
+		else
+		{
+			//effect health
+			Shield = 0.f;
+			//how much dammaged was absorbed by shield
+			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+		}
+	}
 	//this will call on rep health... the replicated function will take care of playing the montage on the client
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+
 	//variable replication is more effecient than rpc
 	//this wil run on the server
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	PlayHitReactMontage();
 	//UE_LOG(LogTemp, Warning, TEXT("char hit here is damage %f"), Damage);
 
@@ -749,6 +772,15 @@ void ABlasterCharacter::OnRep_Health(float LastHealth)
 	}
 }
 
+void ABlasterCharacter::OnRep_Shield(float LastShield)
+{
+	UpdateHUDShield();
+	if (Shield < LastShield)
+	{
+		PlayHitReactMontage();
+	}
+}
+
 void ABlasterCharacter::CalculateAO_Pitch()
 {
 		AO_Pitch = GetBaseAimRotation().Pitch;
@@ -827,6 +859,17 @@ void ABlasterCharacter::UpdateHUDHealth()
 	{
 		//UE_LOG(LogTemp,Display,TEXT("HEALTH:: %f"),Health);//this playes onces
 		BlasterPlayerController->SetHUDHealth(Health,MaxHealth);
+	}
+}
+
+void ABlasterCharacter::UpdateHUDShield()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+
+	if (BlasterPlayerController)
+	{
+		//UE_LOG(LogTemp,Display,TEXT("HEALTH:: %f"),Health);//this playes onces
+		BlasterPlayerController->SetHUDShield(Shield, MaxShield);
 	}
 }
 
