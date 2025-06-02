@@ -115,7 +115,8 @@ void ABlasterPlayerController::SetHUDScore(float Score)
         FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
         BlasterHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
 	}
-	else {
+	else 
+	{
 		bInitializeScore = true;
 		HUDScore = Score;
 	}
@@ -132,7 +133,8 @@ void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
 		BlasterHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
 	}
-	else {
+	else
+	{
 		bInitializeDefeats = true;
 		HUDDefeats = Defeats;
 	}
@@ -173,6 +175,27 @@ void ABlasterPlayerController::SetHUDGrenades(int32 Grenades)
 	bool bHUDValid = BlasterHUD &&
 		BlasterHUD->CharacterOverlay &&
 		BlasterHUD->CharacterOverlay->GrenadeText;
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			10, 5.f, bHUDValid ? FColor::Green : FColor::Red,
+			FString::Printf(TEXT("bHUDValid: %s"), bHUDValid ? TEXT("TRUE") : TEXT("FALSE")));
+
+		GEngine->AddOnScreenDebugMessage(
+			11, 5.f, BlasterHUD ? FColor::Green : FColor::Red,
+			FString::Printf(TEXT("BlasterHUD: %s"), BlasterHUD ? TEXT("VALID") : TEXT("NULL")));
+
+		GEngine->AddOnScreenDebugMessage(
+			12, 5.f, (BlasterHUD && BlasterHUD->CharacterOverlay) ? FColor::Green : FColor::Red,
+			FString::Printf(TEXT("CharacterOverlay: %s"),
+				(BlasterHUD && BlasterHUD->CharacterOverlay) ? TEXT("VALID") : TEXT("NULL")));
+
+		GEngine->AddOnScreenDebugMessage(
+			13, 5.f, bHUDValid ? FColor::Green : FColor::Red,
+			FString::Printf(TEXT("GrenadeText: %s"),
+				(BlasterHUD && BlasterHUD->CharacterOverlay && BlasterHUD->CharacterOverlay->GrenadeText) ? TEXT("VALID") : TEXT("NULL")));
+	}
 
 	if (bHUDValid)
 	{
@@ -280,6 +303,7 @@ void ABlasterPlayerController::SetHUDTime()
 
 void ABlasterPlayerController::PollInit()
 {
+	//this will run and initialize the characetr overlay
 	if (CharacterOverlay == nullptr)
 	{
 		if (BlasterHUD && BlasterHUD->CharacterOverlay)
@@ -287,19 +311,15 @@ void ABlasterPlayerController::PollInit()
 			CharacterOverlay = BlasterHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
-				if(bInitializeHealth)
-					SetHUDHealth(HUDHealth,HUDMaxHealth);
-				if(bInitializeShield)
-					SetHUDShield(HUDShield, HUDMaxShield);
-				if(bInitializeScore)
-					SetHUDScore(HUDScore);
-				if(bInitializeDefeats)
-					SetHUDDefeats(HUDDefeats);
+				if (bInitializeHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
+				if (bInitializeShield) SetHUDShield(HUDShield, HUDMaxShield);
+				if (bInitializeScore) SetHUDScore(HUDScore);
+				if (bInitializeDefeats) SetHUDDefeats(HUDDefeats);
+
 				ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
 				if (BlasterCharacter && BlasterCharacter->GetCombat())
 				{
-					if(bInitializeGrenades)
-						SetHUDGrenades(BlasterCharacter->GetCombat()->GetGrenades());
+					if (bInitializeGrenades) SetHUDGrenades(BlasterCharacter->GetCombat()->GetGrenades());
 				}
 			}
 		}

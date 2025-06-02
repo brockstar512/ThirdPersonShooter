@@ -84,7 +84,7 @@ private:
 	class AWeapon* OverlappingWeapon;
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);//can only have a parameter of type it is replicating...this is to help figure out which widget to hide when we are not with it anymore
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
 	UPROPERTY(VisibleAnywhere)
 	class UBuffComponent* Buff;
