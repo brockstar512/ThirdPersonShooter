@@ -45,5 +45,13 @@ private:
 	class UNiagaraComponent* PickupEffectComponent;
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* PickupEffect;
+
+	//these give the collision time to bind to the destroy delegate.
+	//otherwise if spawned when character is over it it will be destroyed before
+	//the destroy function can bind
+	FTimerHandle BindOverlapTimer;	
+	float BindOverlapTime = 0.25f;
+	void BindOverlapTimerFinished();
+
 };
 

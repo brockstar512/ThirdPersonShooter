@@ -45,12 +45,15 @@ APickup::APickup()
 void APickup::BeginPlay()
 {
 	Super::BeginPlay();
-	//overlap events are only triggered on server... client will not have a delegate to call
-	if (HasAuthority())
+	if(HasAuthority())
 	{
-		OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnSphereOverlap);
+		GetWorldTimerManager().SetTimer(
+			BindOverlapTimer,
+			this,
+			&APickup::BindOverlapTimerFinished,
+			BindOverlapTime
+		);
 	}
-	
 }
 
 void APickup::Destroyed()
@@ -78,6 +81,13 @@ void APickup::Destroyed()
 
 void APickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+}
+
+void APickup::BindOverlapTimerFinished()
+{
+	//overlap events are only triggered on server... client will not have a delegate to call
+	OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnSphereOverlap);
+	
 }
 
 // Called every frame
