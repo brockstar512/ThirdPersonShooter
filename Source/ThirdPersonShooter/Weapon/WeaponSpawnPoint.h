@@ -31,6 +31,9 @@ public:
 
 
 private:
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* SpawnMarker;
+	//UChildActorComponent* WeaponPreview;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> WeaponClass;
 
