@@ -113,7 +113,7 @@ void ABlasterCharacter::SpawnDefaultWeapon()
 	if (BlasterGameMode && !bElimmed && DefaultWeaponClass)
 	{
 		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
-		StartingWeapon->bDestroyWeapon = true;
+		//StartingWeapon->bDestroyWeapon = true;
 		if (Combat)
 		{
 			Combat->EquipWeapon(StartingWeapon);
@@ -219,14 +219,7 @@ void ABlasterCharacter::Elim()
 {
 	if (Combat && Combat->EquippedWeapon)
 	{
-		if (Combat->EquippedWeapon->bDestroyWeapon)
-		{
-			Combat->EquippedWeapon->Destroy();
-		}
-		else 
-		{
-			Combat->EquippedWeapon->Dropped();
-		}
+		Combat->EquippedWeapon->Dropped();
 	}
 	
 	MulticastElim();

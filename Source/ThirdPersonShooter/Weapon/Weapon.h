@@ -93,7 +93,7 @@ protected:
 		bool bFromSweep,
 		const FHitResult& SweepResult
 	);
-		UFUNCTION()
+	UFUNCTION()
 	virtual void OnSphereEndOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
@@ -101,7 +101,16 @@ protected:
 		int32 OtherBodyIndex
 	);
 
-	
+	UPROPERTY(EditAnywhere)
+	float bDroppedWeaponDestroyTimeSeconds = 5.0f;
+
+	FTimerHandle DestroyDroppedWeaponTimer;
+
+	void StartDestroyDroppedWeaponTimer();
+
+
+	void DestroyWeapon();
+
 private:
 	UPROPERTY(VisibleAnywhere, Category="Weapon Properties" )
 	USkeletalMeshComponent* WeaponMesh;
@@ -125,6 +134,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	EWeaponType WeaponType;
+
+
+
 public:	
 	void AddAmmo(int32 AmmoToAdd);
 	void SetWeaponState(EWeaponState State);
@@ -145,8 +157,7 @@ public:
 	//enable or diable custom depth
 	void EnableCustomDepth(bool bEnable);
 
-	bool bDestroyWeapon = false;
-	 
+
 };
 
 /*

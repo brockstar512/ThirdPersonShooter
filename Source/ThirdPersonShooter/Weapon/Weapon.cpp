@@ -130,6 +130,7 @@ void AWeapon::AddAmmo(int32 AmmoToAdd)
 
 void AWeapon::SetWeaponState(EWeaponState State)
 {
+	EWeaponState PreviousWeaponState = State;
 	//this could be where I have the respawn timer reset
 	// if state is initial and state does not equal initial
 	if (HasAuthority() && WeaponState == EWeaponState::EWS_Initial)
@@ -154,6 +155,10 @@ void AWeapon::SetWeaponState(EWeaponState State)
 			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		}
 		EnableCustomDepth(false);
+		if (HasAuthority()) 
+		{
+			GetWorld()->GetTimerManager().ClearTimer(DestroyDroppedWeaponTimer);
+		}
 		break;
 		case EWeaponState::EWS_Dropped:
 		if (HasAuthority())
@@ -271,6 +276,30 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent * OverlappedComponent, AAct
 	}
 }
 
+void AWeapon::StartDestroyDroppedWeaponTimer()
+{
+	if (HasAuthority())
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			DestroyDroppedWeaponTimer,
+			this,
+			&AWeapon::DestroyWeapon,
+			bDroppedWeaponDestroyTimeSeconds,
+			false
+		);
+	}
+}
+
+
+//this might have to be multicast... it does not. multicast should not be used for state. only for fx and animation stuff that should run visualy on client
+void AWeapon::DestroyWeapon()
+{
+	if (HasAuthority())
+	{
+		this->Destroy();
+	}
+}
+
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
 	if(PickupWidget)
@@ -287,6 +316,7 @@ void AWeapon::Dropped()
 	SetOwner(nullptr);
 	BlasterOwnerCharacter = nullptr;
 	BlasterOwnerController = nullptr;
+	StartDestroyDroppedWeaponTimer();
 }
 
 void AWeapon::OnRep_Owner()
