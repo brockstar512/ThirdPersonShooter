@@ -144,6 +144,8 @@ public:
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 	//enable or diable custom depth
 	void EnableCustomDepth(bool bEnable);
+
+	bool bDestroyWeapon = false;
 	 
 };
 

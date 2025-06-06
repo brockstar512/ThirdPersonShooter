@@ -46,8 +46,10 @@ public:
 	//
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
+	void UpdateHUDAmmo();
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
+	void SpawnDefaultWeapon();
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
@@ -67,6 +69,7 @@ protected:
 	void PlayHitReactMontage();
 	void RotateInPlace(float DeltaTime);
 	void GrenadeButtonPressed();
+	
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
@@ -174,6 +177,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* AttachedGrenade;
 
+	//default weapon
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 public:	
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
