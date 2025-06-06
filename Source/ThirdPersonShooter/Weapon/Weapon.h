@@ -17,6 +17,7 @@ enum class EWeaponState : uint8
 	EWS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
+
 UCLASS()
 class THIRDPERSONSHOOTER_API AWeapon : public AActor
 {

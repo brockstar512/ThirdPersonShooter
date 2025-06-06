@@ -130,6 +130,13 @@ void AWeapon::AddAmmo(int32 AmmoToAdd)
 
 void AWeapon::SetWeaponState(EWeaponState State)
 {
+	//this could be where I have the respawn timer reset
+	// if state is initial and state does not equal initial
+	if (HasAuthority() && WeaponState == EWeaponState::EWS_Initial)
+	{
+		//before I continue with this make sure that the pickup spawner will not break when I make default weapons
+	}
+	
 	//this will change the variabke which will fire the replicate function attached to it on the clients....i think
 	WeaponState = State;
 	switch(WeaponState)
