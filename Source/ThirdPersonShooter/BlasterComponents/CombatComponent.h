@@ -21,6 +21,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	friend class ABlasterCharacter;
 	void EquipWeapon(class AWeapon* WeaponToEquip);
+	void SwapWeapons();
 	void Reload();
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
@@ -174,5 +175,6 @@ public:
 	void JumpToShotgunEnd();
 	UFUNCTION(BlueprintCallable)
 	void ThrowGrenadeFinished();
+	bool ShouldSwapWeapons();
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 };

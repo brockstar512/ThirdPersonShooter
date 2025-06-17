@@ -855,9 +855,17 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 //are of by the engine
 void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
-		if(Combat)
+	if(Combat)
 	{
-		Combat->EquipWeapon(OverlappingWeapon);
+		if (OverlappingWeapon)
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else if (Combat->ShouldSwapWeapons())
+		{
+			//change this to its own button and have the server implemtnation edit pickup 
+			Combat->SwapWeapons();
+		}
 	}
 }
 
