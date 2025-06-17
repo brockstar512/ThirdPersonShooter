@@ -88,9 +88,9 @@ void AWeapon::BeginPlay()
 
 void AWeapon::OnRep_WeaponState()
 {
-	switch(WeaponState)
+	switch (WeaponState)
 	{
-		case EWeaponState::EWS_Equipped:
+	case EWeaponState::EWS_Equipped:
 		ShowPickupWidget(false);
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
@@ -101,7 +101,6 @@ void AWeapon::OnRep_WeaponState()
 			WeaponMesh->SetEnableGravity(true);
 			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		}
-		EnableCustomDepth(false);
 		break;
 	case EWeaponState::EWS_Dropped:
 		WeaponMesh->SetSimulatePhysics(true);
@@ -111,9 +110,7 @@ void AWeapon::OnRep_WeaponState()
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		
-		
 		WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
-		//rerender weapon mesh
 		WeaponMesh->MarkRenderStateDirty();
 		EnableCustomDepth(true);
 		break;
@@ -329,7 +326,11 @@ void AWeapon::OnRep_Owner()
 	}
 	else
 	{
-		SetHUDAmmo();
+		BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(Owner) : BlasterOwnerCharacter;
+		if (BlasterOwnerCharacter && BlasterOwnerCharacter->GetEqippedWeapon() && BlasterOwnerCharacter->GetEqippedWeapon() == this)
+		{
+			SetHUDAmmo();
+		}
 	}
 }
 

@@ -38,14 +38,16 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	void DroppedEquippedWeapon();
 	void AttachActorToRightHand(AActor* AActorToAttach);
 	void AttachActorToLeftHand(AActor* AActorToAttach);
-
+	void AttachActorToBackpack(AActor* ActorToAttach);
 	void UpdateCarriedAmmo();
-	void PlayEquippedWeaponSound();
+	void PlayEquippedWeaponSound(AWeapon* WeaponToEquip);
 	void ReloadEmptyWeapon();
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+	UFUNCTION()
+	void OnRep_SecondaryWeapon();
 	void Fire();
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
@@ -69,6 +71,8 @@ private:
 	class ABlasterHUD* HUD;
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
+	UPROPERTY(ReplicatedUsing = OnRep_SecondaryWeapon)
+	AWeapon* SecondaryWeapon;
 	UPROPERTY(Replicated)
 	bool bAiming;
 	float BaseWalkSpeed;
@@ -150,7 +154,8 @@ private:
 	void UpdateAmmoValues();
 	void UpdateShotgunAmmoValues();
 	void ShowAttachedGrenade(bool bShowGrenade);
-	
+	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
+	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
 
 	UFUNCTION()
 	void OnRep_Grenades();
