@@ -217,9 +217,17 @@ void ABlasterCharacter::PlayElimMontage()
 
 void ABlasterCharacter::Elim()
 {
-	if (Combat && Combat->EquippedWeapon)
+	if (Combat)
 	{
-		Combat->EquippedWeapon->Dropped();
+		if (Combat->EquippedWeapon)
+		{
+			DropWeapon(Combat->EquippedWeapon);
+		}
+
+		if (Combat->SecondaryWeapon)
+		{
+			DropWeapon(Combat->SecondaryWeapon);
+		}
 	}
 	
 	MulticastElim();
@@ -229,6 +237,15 @@ void ABlasterCharacter::Elim()
 		&ABlasterCharacter::ElimTimerFinished,
 		ElimDelay
 	);
+}
+
+void ABlasterCharacter::DropWeapon(AWeapon* Weapon)
+{
+	if (Weapon == nullptr)
+	{
+		return;
+	}
+	Weapon->Dropped();
 }
 
 void ABlasterCharacter::MulticastElim_Implementation()
@@ -967,4 +984,6 @@ void ABlasterCharacter::GrenadeButtonPressed()
 		Combat->ThrowGrenade();
 	}
 }
+
+
 

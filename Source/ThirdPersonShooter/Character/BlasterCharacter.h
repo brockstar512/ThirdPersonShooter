@@ -69,7 +69,7 @@ protected:
 	void PlayHitReactMontage();
 	void RotateInPlace(float DeltaTime);
 	void GrenadeButtonPressed();
-	
+	void DropWeapon(AWeapon* Weapon);
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
