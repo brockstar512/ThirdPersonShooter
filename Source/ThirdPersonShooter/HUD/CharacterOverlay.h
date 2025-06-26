@@ -44,4 +44,10 @@ UTextBlock* MatchCountDownText;
 
 UPROPERTY(meta = (BindWidget))
 UTextBlock* GrenadeText;
+
+UPROPERTY(meta = (BindWidget)) 
+class UImage* WifiIcon;
+
+UPROPERTY(meta = (BindWidgetAnim),Transient)
+UWidgetAnimation* HighPingAnimation;
 };

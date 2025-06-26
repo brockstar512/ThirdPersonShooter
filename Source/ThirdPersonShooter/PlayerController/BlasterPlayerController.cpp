@@ -6,6 +6,7 @@
 #include "ThirdPersonShooter/HUD/CharacterOverlay.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
 #include "ThirdPersonShooter/Character/BlasterCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "ThirdPersonShooter/GameMode/BlasterGameMode.h"
@@ -57,6 +58,8 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
 	PollInit();
+	CheckPing(DeltaTime);
+	
 	
 }
 
@@ -262,15 +265,7 @@ void ABlasterPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 		BlasterHUD->Announcement->WarmUpTime->SetText(FText::FromString(CountdownText));
-	}
-	//for some reason the client is not showing the text for either game or countdown
-
-		//
-		//if (GEngine && bHUDValid)
-		//{
-		//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("am i valid")));
-		//}
-	
+	}	
 }
 
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
@@ -292,10 +287,7 @@ void ABlasterPlayerController::SetHUDTime()
 
 
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
-	//if (GEngine)
-	//{
-	//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("World delta for current frame equals %d"), SecondsLeft));
-	//}
+
 	if (CountdownInt != SecondsLeft)
 	{
 		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
@@ -325,12 +317,15 @@ void ABlasterPlayerController::PollInit()
 				if (bInitializeShield) SetHUDShield(HUDShield, HUDMaxShield);
 				if (bInitializeScore) SetHUDScore(HUDScore);
 				if (bInitializeDefeats) SetHUDDefeats(HUDDefeats);
+				//this does not initialize properly
 				if (bInitializeCarriedAmmo) SetHUDCarriedAmmo(HUDCarriedAmmo);
+				//this does not initialize properly
 				if (bInitializeWeaponAmmo) SetHUDWeaponAmmo(HUDWeaponAmmo);
 
 				ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
 				if (BlasterCharacter && BlasterCharacter->GetCombat())
 				{
+					//this does not initialize properly
 					if (bInitializeGrenades) SetHUDGrenades(BlasterCharacter->GetCombat()->GetGrenades());
 				}
 			}
@@ -348,6 +343,85 @@ void ABlasterPlayerController::CheckTimeSync(float DeltaTime)
 		TimeSyncRunningTime =0.f;
 	}
 }
+
+
+void ABlasterPlayerController::CheckPing(float DeltaTime)
+{
+	HighPingRunningTime += DeltaTime;
+	if (HighPingRunningTime > CheckPingFrequency)
+	{
+		if (!PlayerState) PlayerState = GetPlayerState<APlayerState>();
+
+		if (PlayerState)
+		{
+			if (PlayerState->GetPingInMilliseconds() * 4 > HighPingThreshold)// ping is compressed; it's actually ping / 4
+			{
+				HighPingWarning();
+				PingAnimationRunningTime = 0.f;
+			}
+		}
+		HighPingRunningTime = 0.f;
+	}
+
+	bool bHighPingAnimationPlaying =
+		BlasterHUD && BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->HighPingAnimation &&
+		BlasterHUD->CharacterOverlay->IsAnimationPlaying(BlasterHUD->CharacterOverlay->HighPingAnimation);
+	if (bHighPingAnimationPlaying)
+	{
+		PingAnimationRunningTime += DeltaTime;
+		if (PingAnimationRunningTime > HighPingDuration)
+		{
+			StopHighPingWarning();
+		}
+	}
+}
+
+void ABlasterPlayerController::HighPingWarning()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	bool bHUDValid = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->WifiIcon &&
+		BlasterHUD->CharacterOverlay->HighPingAnimation;
+
+	// Print to screen
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,                          // Key (-1 means "add new message")
+			5.f,                         // Display time in seconds
+			FColor::Green,              // Text color
+			FString::Printf(TEXT("bHUDValid: %s"), bHUDValid ? TEXT("true") : TEXT("false"))
+		);
+	}
+		if (bHUDValid)
+		{
+			BlasterHUD->CharacterOverlay->WifiIcon->SetOpacity(1.f);
+			BlasterHUD->CharacterOverlay->PlayAnimation(
+				BlasterHUD->CharacterOverlay->HighPingAnimation,
+				0.f,
+				5);
+		}
+}
+
+void ABlasterPlayerController::StopHighPingWarning()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	bool bHUDValid = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->WifiIcon &&
+		BlasterHUD->CharacterOverlay->HighPingAnimation;
+	if (bHUDValid)
+	{
+		BlasterHUD->CharacterOverlay->WifiIcon->SetOpacity(0.f);
+		if (BlasterHUD->CharacterOverlay->IsAnimationPlaying(BlasterHUD->CharacterOverlay->HighPingAnimation)) 
+		{
+			BlasterHUD->CharacterOverlay->StopAnimation(BlasterHUD->CharacterOverlay->HighPingAnimation);
+		}
+	}
+}
+
 
 void ABlasterPlayerController::OnMatchStateSet(FName State)
 {

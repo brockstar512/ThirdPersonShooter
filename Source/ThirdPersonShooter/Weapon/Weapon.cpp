@@ -69,16 +69,12 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//if we are the server enable collision//GetLocalRole() == ENetRole::ROLE_Authority)
-	if(HasAuthority())
-	{
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn,ECollisionResponse::ECR_Overlap);
 		//we are only binding the delegate on the server.. the user object and the callback
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
 		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
 
-	}
 
 	if(PickupWidget)
 	{
@@ -221,7 +217,12 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}	
 	}
-	SpendRound();
+
+	if (HasAuthority())
+	{
+		SpendRound();
+	}
+
 }
 
 bool AWeapon::IsEmpty()

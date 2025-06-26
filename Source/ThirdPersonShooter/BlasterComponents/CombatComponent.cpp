@@ -492,6 +492,7 @@ bool UCombatComponent::ShouldSwapWeapons()
 
 void UCombatComponent::SwapWeapons()
 {
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	AWeapon* TempWeapon = EquippedWeapon;
 	EquippedWeapon = SecondaryWeapon;
 	SecondaryWeapon = TempWeapon; 
@@ -716,23 +717,11 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 //this is the server calling fire on all clients and server
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	if(EquippedWeapon == nullptr) return;
+	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+	//if we get passed this if check we are either on the server or a client that did not call the server
+	LocalFire(TraceHitTarget);
 
-	if (Character && CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
-	{
-		//only on the shotgun can weapon fire while relaoding
-		Character->PlayFireMontage(bAiming);
-		EquippedWeapon->Fire(TraceHitTarget);
-		CombatState = ECombatState::ECS_Unoccupied;
-		return;
-	}
-
-	//checking if this role has a gun and character then if it can fire in its state
-	if (Character && CombatState == ECombatState::ECS_Unoccupied)
-	{
-		Character->PlayFireMontage(bAiming);
-		EquippedWeapon->Fire(TraceHitTarget);
-	}
+	
 
 }
 
@@ -921,7 +910,10 @@ void UCombatComponent::Fire()
 		//}
 		//telling the server i clicked fire and which point i was clicking at
 		bCanFire = false;
+		//fire to cause damage
 		ServerFire(HitTarget);
+		//fire the cosmetics to reduce lag feel
+		LocalFire(HitTarget);
 		if (EquippedWeapon)
 		{
 			CrosshairShootingFactor = .75f;
@@ -929,6 +921,27 @@ void UCombatComponent::Fire()
 		StartFireTimer();
 	}
 }
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
+{
+	if (EquippedWeapon == nullptr) return;
+
+	if (Character && CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
+	{
+		//only on the shotgun can weapon fire while relaoding
+		Character->PlayFireMontage(bAiming);
+		EquippedWeapon->Fire(TraceHitTarget);
+		CombatState = ECombatState::ECS_Unoccupied;
+		return;
+	}
+
+	//checking if this role has a gun and character then if it can fire in its state
+	if (Character && CombatState == ECombatState::ECS_Unoccupied)
+	{
+		Character->PlayFireMontage(bAiming);
+		EquippedWeapon->Fire(TraceHitTarget);
+	}
+}
+
 void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
 {
 	if (CarriedAmmoMap.Contains(WeaponType))
