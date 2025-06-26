@@ -50,6 +50,9 @@ protected://	friend class ABlasterCharacter; now blaster character has access to
 	UFUNCTION()
 	void OnRep_SecondaryWeapon();
 	void Fire();
+	void FireProjectileWeapon();
+	void FireHitScanWeapon();
+	void FireShotgun();
 	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);

@@ -11,15 +11,15 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "ThirdPersonShooter/PlayerController/BlasterPlayerController.h"
-// #include "ThirdPersonShooter/HUD/BlasterHUD.h"//we do not need this here now because we included it now in the header
 #include "ThirdPersonShooter/Character/BlasterAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 #include "ThirdPersonShooter/Weapon/Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "ThirdPersonShooter/Weapon/Shotgun.h"
 
-// Sets default values for this component's properties
+
 UCombatComponent::UCombatComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
@@ -911,12 +911,22 @@ void UCombatComponent::Fire()
 		//telling the server i clicked fire and which point i was clicking at
 		bCanFire = false;
 		//fire to cause damage
-		ServerFire(HitTarget);
-		//fire the cosmetics to reduce lag feel
-		LocalFire(HitTarget);
 		if (EquippedWeapon)
 		{
 			CrosshairShootingFactor = .75f;
+
+			switch (EquippedWeapon->FireType)
+			{
+			case EFireType::EFT_Projectile:
+				FireProjectileWeapon();
+				break;
+			case EFireType::EFT_HitScan:
+				FireHitScanWeapon();
+				break;
+			case EFireType::EFT_Shotgun:
+				FireShotgun();
+				break;
+			}
 		}
 		StartFireTimer();
 	}
@@ -952,5 +962,36 @@ void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
 	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == WeaponType)
 	{
 		Reload();
+	}
+}
+
+void UCombatComponent::FireProjectileWeapon()
+{
+	if (EquippedWeapon)
+	{
+		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
+		LocalFire(HitTarget);
+		ServerFire(HitTarget);
+	}
+}
+
+void UCombatComponent::FireHitScanWeapon()
+{
+	if (EquippedWeapon)
+	{
+		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
+		LocalFire(HitTarget);
+		ServerFire(HitTarget);
+	}
+}
+
+void UCombatComponent::FireShotgun()
+{
+	AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
+	if (Shotgun)
+	{
+		TArray<FVector> HitTargets;
+		Shotgun->ShotgunTraceEndWithScatter(HitTarget, HitTargets);
+
 	}
 }
