@@ -935,20 +935,22 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) return;
 
-	if (Character && CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
-	{
-		//only on the shotgun can weapon fire while relaoding
-		Character->PlayFireMontage(bAiming);
-		EquippedWeapon->Fire(TraceHitTarget);
-		CombatState = ECombatState::ECS_Unoccupied;
-		return;
-	}
-
-	//checking if this role has a gun and character then if it can fire in its state
 	if (Character && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		Character->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
+	}
+}
+
+void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& TraceHitTargets)
+{
+	AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
+	if (Shotgun == nullptr || Character == nullptr) return;
+	if (CombatState == ECombatState::ECS_Reloading || CombatState == ECombatState::ECS_Unoccupied)
+	{
+		Character->PlayFireMontage(bAiming);
+		Shotgun->FireShotgun(TraceHitTargets);
+		CombatState = ECombatState::ECS_Unoccupied;
 	}
 }
 
@@ -967,20 +969,20 @@ void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
 
 void UCombatComponent::FireProjectileWeapon()
 {
-	if (EquippedWeapon)
+	if (EquippedWeapon && Character)
 	{
 		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
-		LocalFire(HitTarget);
+		if (!Character->HasAuthority()) LocalFire(HitTarget);
 		ServerFire(HitTarget);
 	}
 }
 
 void UCombatComponent::FireHitScanWeapon()
 {
-	if (EquippedWeapon)
+	if (EquippedWeapon && Character)
 	{
 		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
-		LocalFire(HitTarget);
+		if (!Character->HasAuthority()) LocalFire(HitTarget);
 		ServerFire(HitTarget);
 	}
 }
@@ -988,10 +990,26 @@ void UCombatComponent::FireHitScanWeapon()
 void UCombatComponent::FireShotgun()
 {
 	AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
-	if (Shotgun)
+	if (Shotgun && Character)
 	{
-		TArray<FVector> HitTargets;
+		TArray<FVector_NetQuantize> HitTargets;
+		//get the randomized HitTargets locations
 		Shotgun->ShotgunTraceEndWithScatter(HitTarget, HitTargets);
+		//local controlled pl;ayer calls local fire directly
+		if (!Character->HasAuthority()) ShotgunLocalFire(HitTargets);
+		//server calls mulitcast fire shotgun for all the other controlled actors so their game is updated
+		ServerShotgunFire(HitTargets);
 
 	}
+}
+
+void UCombatComponent::ServerShotgunFire_Implementation(const TArray<FVector_NetQuantize>& TraceHitTargets)
+{
+	MulticastShotgunFire(TraceHitTargets);
+}
+
+void UCombatComponent::MulticastShotgunFire_Implementation(const TArray<FVector_NetQuantize>& TraceHitTargets)
+{
+	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+	ShotgunLocalFire(TraceHitTargets);
 }
