@@ -450,7 +450,7 @@ void UCombatComponent::UpdateAmmoValues()
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
 
-	EquippedWeapon->AddAmmo(-ReloadAmount);
+	EquippedWeapon->AddAmmo(ReloadAmount);
 
 }
 
@@ -468,7 +468,7 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
-	EquippedWeapon->AddAmmo(-1);
+	EquippedWeapon->AddAmmo(1);
 	bCanFire = true;
 	if (EquippedWeapon->IsFull() || CarriedAmmo == 0)
 	{
@@ -562,7 +562,7 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 	{
 		Character->ShowSniperScopeWidget(bIsAiming);
 	}
-
+	if (Character->IsLocallyControlled()) bAimButtonPressed = bIsAiming;
 }
 
 void UCombatComponent::FireButtonPressed(bool bPressed)
@@ -1012,4 +1012,12 @@ void UCombatComponent::MulticastShotgunFire_Implementation(const TArray<FVector_
 {
 	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
 	ShotgunLocalFire(TraceHitTargets);
+}
+
+void UCombatComponent::OnRep_Aiming()
+{
+	if (Character && Character->IsLocallyControlled())
+	{
+		bAiming = bAimButtonPressed;
+	}
 }

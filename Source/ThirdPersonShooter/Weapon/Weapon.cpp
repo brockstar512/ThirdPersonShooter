@@ -62,7 +62,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWeapon, WeaponState);
-	DOREPLIFETIME(AWeapon, Ammo);
+	//DOREPLIFETIME(AWeapon, Ammo);
 
 }
 
@@ -88,13 +88,7 @@ void AWeapon::OnRep_WeaponState()
 	OnWeaponStateSet();
 }
 
-void AWeapon::AddAmmo(int32 AmmoToAdd)
-{
-	Ammo = FMath::Clamp(Ammo - AmmoToAdd,0, MagCapacity);
-	UE_LOG(LogTemp, Warning, TEXT("adding ammo!"));
 
-	SetHUDAmmo();
-}
 void AWeapon::OnWeaponStateSet()
 {
 	switch (WeaponState)
@@ -219,11 +213,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 		}	
 	}
 
-	if (HasAuthority())
-	{
-		SpendRound();
-	}
-
+	SpendRound();
 }
 
 bool AWeapon::IsEmpty()
@@ -244,7 +234,7 @@ void AWeapon::EnableCustomDepth(bool bEnable)
 	}
 }
 
-void AWeapon::OnRep_Ammo()
+void AWeapon::ClientUpdateAmmo_Implementation(int32 ServerAmmo)
 {
 	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
 
@@ -257,12 +247,40 @@ void AWeapon::OnRep_Ammo()
 	
 }
 
+void AWeapon::ClientAddAmmo_Implementation(int32 AmmoToAdd)
+{
+	if (HasAuthority()) return;
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
+	if (BlasterOwnerCharacter && BlasterOwnerCharacter->GetCombat() && IsFull())
+	{
+		BlasterOwnerCharacter->GetCombat()->JumpToShotgunEnd();
+	}
+	SetHUDAmmo();
+}
+
 void AWeapon::SpendRound()
 {
 	//decrement ammo
 	Ammo = FMath::Clamp(Ammo - 1, 0 , MagCapacity);
 	SetHUDAmmo();
 
+	if (HasAuthority())
+	{
+		ClientUpdateAmmo(Ammo);
+	}
+	else
+	{
+		++Sequence;
+	}
+
+}
+
+void AWeapon::AddAmmo(int32 AmmoToAdd)
+{
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo(); 
+	ClientAddAmmo(AmmoToAdd);
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult)
@@ -386,7 +404,7 @@ FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
 		GetWorld(),
 		TraceStart,
 		FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()),
-		FColor::Cyan,Add commentMore actions
+		FColor::Cyan,
 		true);*/
 
 

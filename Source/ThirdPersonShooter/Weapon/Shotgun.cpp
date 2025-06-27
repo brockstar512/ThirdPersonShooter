@@ -108,6 +108,15 @@ void AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVect
 		FVector ToEndLoc = EndLoc - TraceStart;
 		ToEndLoc = TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size();
 
+		//DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
+		//DrawDebugSphere(GetWorld(), EndLoc, 4.f, 12, FColor::Orange, true);
+		//DrawDebugLine(
+		//	GetWorld(),
+		//	TraceStart,
+		//	FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()),
+		//	FColor::Cyan,
+		//	true);
+
 		HitTargets.Add(ToEndLoc);
 	}
 }
