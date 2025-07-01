@@ -98,7 +98,16 @@ bool UCombatComponent::CanFire()
 {
 	if(EquippedWeapon == nullptr) return false;
 
-	if (!EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun) return true;
+	if (bLocallyReloading)
+	{
+		// allow shutgun shot at reloading
+		if (!EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
+		{
+			bLocallyReloading = false;
+			return true;
+		}
+		return false;
+	}
 
 	return !EquippedWeapon ->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 
@@ -324,9 +333,11 @@ void UCombatComponent::EquipWeapon(AWeapon * WeaponToEquip)
 void UCombatComponent::Reload()
 {
 	//when we want to reload tell the server to reload
-	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->IsFull())
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->IsFull() && !bLocallyReloading)
 	{
 		ServerReload();
+		HandleReload();
+		bLocallyReloading = true;
 	}
 }
 
@@ -339,6 +350,8 @@ void UCombatComponent::ThrowGrenadeFinished()
 void UCombatComponent::FinishReloading()
 {
 	if(Character == nullptr) return;
+
+	bLocallyReloading = false;
 
 	if(Character->HasAuthority())
 	{
@@ -357,7 +370,10 @@ void UCombatComponent::FinishReloading()
 
 void UCombatComponent::HandleReload()
 {
-    Character->PlayReloadMontage();
+	if (Character)
+	{
+		Character->PlayReloadMontage();
+	}
 }
 
 int32 UCombatComponent::AmountToReload()
@@ -403,7 +419,9 @@ void UCombatComponent::ServerReload_Implementation()
 	
 
 	CombatState = ECombatState::ECS_Reloading;
+	if (!Character->IsLocallyControlled()){
 	HandleReload();//this only runs on the server... but then the combate state changes OnRep_CombatState will run on the client
+	}
 }
 
 void UCombatComponent::OnRep_CombatState()
@@ -411,7 +429,7 @@ void UCombatComponent::OnRep_CombatState()
 	switch(CombatState)
 	{
 		case ECombatState::ECS_Reloading:
-		HandleReload();///this runs on the client
+		if (Character && !Character->IsLocallyControlled()) HandleReload();///this runs on the client
 		break;
 		case ECombatState::ECS_Unoccupied:
 		if(bFireButtonPressed)

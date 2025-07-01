@@ -32,6 +32,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerLaunchGrenade(const FVector_NetQuantize& Target);
 	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
+	bool bLocallyReloading = false;
 protected://	friend class ABlasterCharacter; now blaster character has access to all of the combat compoannts protected and priate stuff
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -82,6 +82,10 @@ void UBlasterAnimInstance::NativeUpdateAnimation(float DeltaTime)
     // UE_LOG(LogTemp, Warning, TEXT("yaw: %f "),YawOffset);
 
     bUseFABRIK = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
+    if (BlasterCharacter->IsLocallyControlled() && BlasterCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade)
+    {
+        bUseFABRIK = !BlasterCharacter->IsLocallyReloading();
+    }
     bUseAimOffsets = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !BlasterCharacter->GetDisabledGameplay();
     bTransformRightHand = BlasterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !BlasterCharacter->GetDisabledGameplay();
 }
