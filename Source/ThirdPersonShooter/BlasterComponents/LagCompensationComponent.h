@@ -3,15 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Components/ActorComponent.h"
 #include "LagCompensationComponent.generated.h"
-
 
 USTRUCT(BlueprintType)
 struct FBoxInformation
 {
 	GENERATED_BODY()
-		UPROPERTY()
+	UPROPERTY()
 	FVector Location;
 
 	UPROPERTY()
@@ -33,26 +32,27 @@ struct FFramePackage
 	TMap<FName, FBoxInformation> HitBoxInfo;
 };
 
-UCLASS()
-class THIRDPERSONSHOOTER_API ALagCompensationComponent : public AActor
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class THIRDPERSONSHOOTER_API ULagCompensationComponent : public UActorComponent
 {
 	GENERATED_BODY()
-	
+
 public:	
-	ALagCompensationComponent();
+	// Sets default values for this component's properties
+	ULagCompensationComponent();
 	friend class ABlasterCharacter;
-	virtual void Tick(float DeltaTime) override;
-
-
-
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void ShowFramePackage(const FFramePackage& Package, const FColor& Color);
 protected:
+	// Called when the game starts
 	virtual void BeginPlay() override;
-
+	void SaveFramePackage(FFramePackage& Package);
 private:
-UPROPERTY()
-ABlasterCharacter* Character;
+	UPROPERTY()
+	ABlasterCharacter* Character;
 
-UPROPERTY()
-class ABlasterPlayerController* Controller; 
-
+	UPROPERTY()
+	class ABlasterPlayerController* Controller;
+		
 };

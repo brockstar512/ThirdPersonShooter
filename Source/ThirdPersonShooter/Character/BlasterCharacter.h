@@ -50,6 +50,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
 	void SpawnDefaultWeapon();
+	UPROPERTY()
+	TMap<FName, class UBoxComponent*> HitCollisionBoxes;
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
@@ -148,7 +150,7 @@ private:
 	class UBuffComponent* Buff;
 
 	UPROPERTY(VisibleAnywhere)
-	class ALagCompensationComponent* LagCompensation;
+	class ULagCompensationComponent* LagCompensation;
 
 	//reliable are guaranteed to be executed unreliable may or not be executed depending if the data packet was dropped similar to tcp vs UDP
 	UFUNCTION(Server,Reliable)//one off actiosna re good to make reliable
