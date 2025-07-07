@@ -29,11 +29,12 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void OnMatchStateSet(FName State);
 	void HandleCoolDown();
+	float SingleTripTime = 0.f;
+	virtual float GetServerTime();
+	virtual void ReceivedPlayer() override;//sync with server clock as soon as possible.
 
 protected:
-	virtual float GetServerTime();
 	virtual void BeginPlay() override;
-	virtual void ReceivedPlayer() override;//sync with server clock as soon as possible.
 	void SetHUDTime();
 	void PollInit();
 	void HandleMatchHasStarted();

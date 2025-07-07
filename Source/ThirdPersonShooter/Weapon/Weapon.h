@@ -91,10 +91,6 @@ UPROPERTY(EditAnywhere, Category= Crosshairs)
 	// Incremented in SpendRound, decremented in ClientUpdateAmmo.
 	int32 Sequence = 0;
 
-    UPROPERTY()
-	class ABlasterCharacter* BlasterOwnerCharacter;
-	UPROPERTY()
-	class ABlasterPlayerController* BlasterOwnerController;
 
 protected:
 	// Called when the game starts or when spawned
@@ -142,6 +138,17 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
 	float SphereRadius = 75.f;
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	bool bUseServerSideRewind = false;
+
+	UPROPERTY()
+	class ABlasterCharacter* BlasterOwnerCharacter;
+	UPROPERTY()
+	class ABlasterPlayerController* BlasterOwnerController;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category="Weapon Properties" )
@@ -194,7 +201,7 @@ public:
 	EFireType FireType;
 	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
 	bool bUseScatter = false;
-
+	FORCEINLINE float GetDamage() const { return Damage; }
 };
 
 /*
