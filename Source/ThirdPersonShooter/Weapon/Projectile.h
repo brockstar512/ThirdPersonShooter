@@ -16,6 +16,18 @@ public:
 	AProjectile();
 	virtual void Destroyed() override;
 
+
+	/**
+	* Used with server-side rewind
+	*/
+
+	bool bUseServerSideRewind = false;
+	FVector_NetQuantize TraceStart;
+	FVector_NetQuantize100 InitialVelocity;
+
+	UPROPERTY(EditAnywhere)
+	float InitialSpeed = 15000;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
