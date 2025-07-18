@@ -28,6 +28,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	float InitialSpeed = 15000;
 
+	float Damage = 20.f;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -43,8 +45,7 @@ protected:
 
 	void ExplodeDamage();
 
-	UPROPERTY(EditAnywhere)
-	float Damage;
+
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* ImpactParticles;
