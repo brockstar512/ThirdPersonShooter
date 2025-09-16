@@ -246,7 +246,7 @@ public:
 	bool IsAiming();
 	FORCEINLINE float GetAO_Yaw() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
-	AWeapon* GetEqippedWeapon();
+	AWeapon* GetEquippedWeapon();
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}
 	//UPROPERTY(VisibleAnywhere, Category = CombatComponent)this will add a vriable string  called hello to the caFtegory on myblastercharacter
 	//FString hello = "Hello";
